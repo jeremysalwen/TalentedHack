@@ -37,58 +37,103 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 
 float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigned long Nf, float fs) {
 	// Calculate pitch period
-	//   Pitch period is determined by the location of the max (biased)
-	//     peak within a given range
-	
-	//   Confidence is determined by the corresponding unbiased height
 
+	//MPM Algorithm, thanks to Philip McLeod, and Geoff Wyvill, adapted from their GPL Tartini program
+	
 	float pperiod = pdetector->pmin;
-	const float* i;
-	const float* start=autocorr+pdetector->nmin;
 	const float* end=autocorr+pdetector->nmax;
-	const float* nextmax=autocorr+Nf;
-	if(end>=nextmax) {
-		end=nextmax-1;
+	const float* start=autocorr+pdetector->nmin;
+	if(pdetector->ppickthresh>1) {
+		//Shouldn't have to do this, but this is for safety
+		pdetector->ppickthresh=1;
 	}
-	const float* peak=start;
-	for (i=start; i<end; i++) {
-		const float* previous = i-1;
-		const float* next = i+1;
-		if (*i>*previous && *i>=*next && *i>*peak) {
-			peak = i;
+	
+	
+	//circular buffer of peaks.
+	const int numpeaks=2000;
+	const float* peaks[numpeaks];
+	memset(peaks,0, sizeof(float*) * numpeaks);
+	//current write pointer
+	const float** peakindex=peaks;
+	//end of buffer
+	const float** endpeak=peaks+numpeaks;
+	//Choose peak so far
+	const float** bestpeakindex=peaks;
+
+	const float* i=autocorr;
+	//go to second zero-crossing
+	while(*i>=0 && i<end) i++;
+	while(*i<=0 && i<end) i++;
+	while(i<start) i++;
+	*peaks=i;
+	float peak=-2; //height of highest peak found
+	int abovezero=1;  //boolean
+	while (i<end) {
+		if(*i<=0) {
+			if(abovezero) {
+				//recalculate best peak index;
+				while(**bestpeakindex < pdetector->ppickthresh * peak) {
+					bestpeakindex++;
+					if(bestpeakindex>endpeak) {
+						bestpeakindex=peaks;
+					}
+				}
+				peakindex++;
+				if(peakindex==bestpeakindex) {
+					//Our circular buffer wrapped around! This is bad!  Should I throw an error or just return the best one we have so far?
+					printf("Autotalent LV2 Error! Peak picking buffer wrapped around! Very bad!");
+					break;
+				}
+				if(peakindex>endpeak) {
+					peakindex=peaks;
+				} else {
+					*peakindex=i;
+				}
+			}
+			abovezero=0;
+		} else {
+			abovezero=1;
+			if (*i>peak) {
+				peak = *i;
+			}
+			if(*i>**peakindex) { 
+				*peakindex=i;
+			}
 		}
+		i++;
 	}
-	if (peak>start) {
-		int peakindex=peak-autocorr;
-		pdetector->confidence = (*peak) * pdetector->acwinv[peakindex];
-		if (peak<end) {
+	
+	const float *bestpeak=*bestpeakindex;
+	if (peak>0) {
+		int peakindex=bestpeak-autocorr;
+		pdetector->confidence = (*bestpeak) * pdetector->acwinv[peakindex];
+		if (bestpeak<end) {
 			//Parabolically interpolate to find the peak
-			int denominator=2*peak[0]-peak[1]-peak[-1];
+			int denominator=2*bestpeak[0]-bestpeak[1]-bestpeak[-1];
 			if(denominator!=0) {
-				int numerator=peak[1]-peak[-1];
+				int numerator=bestpeak[1]-bestpeak[-1];
 				float fmax=peakindex+((float)numerator)/((float)denominator);
 				pperiod=fmax/fs;
 			} else {
 				pperiod=peakindex/fs;
 			}
 			/*
-			// Find the center of mass in the vicinity of the detected peak
-			float tf = peak[-1]*(peakindex-1);
-			tf = tf + peak[0]*(peakindex);
-			tf = tf + peak[1]*(peakindex+1);
-			tf = tf/(peak[-1] + peak[0] + peak[1]);
-			pperiod = tf/fs;
-			*/
+			 // Find the center of mass in the vicinity of the detected peak
+			 float tf = peak[-1]*(peakindex-1);
+			 tf = tf + peak[0]*(peakindex);
+			 tf = tf + peak[1]*(peakindex+1);
+			 tf = tf/(peak[-1] + peak[0] + peak[1]);
+			 pperiod = tf/fs;
+			 */
 		} else {
 			pperiod = (float)(peakindex)/fs;
 		}
 	} else {
 		pdetector->confidence=0;
 	}
-	
+
 	// Convert to semitones
 	if (pdetector->confidence>=pdetector->vthresh) {
-
 		return pperiod;
 	} else {
 		return -1;  //Could not find pitch;
@@ -96,7 +141,8 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 }
 
 void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsigned long cbsize, double SampleRate) {
-    unsigned long corrsize=cbsize/2+1;
+	pdetector->ppickthresh=0.9;//I have no idea what this should be, except the MPM paper suggested between 0.8 and 1, so I am taking the average :P
+	unsigned long corrsize=cbsize/2+1;
 	pdetector->pmax = 1/(float)70;  // max and min periods (ms)
 	pdetector->pmin = 1/(float)700; // eventually may want to bring these out as sliders
 
