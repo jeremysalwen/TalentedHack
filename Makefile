@@ -11,3 +11,6 @@ autotalent_lv2.so: $(OBJS)
 clean:
 	rm *.so
 	rm *.o
+install:
+	echo "Copying this directory to ~/.lv2 ..."
+	cp -r ../`basename \`pwd\`` ~/.lv2/

@@ -6,7 +6,6 @@
 #include "autotalent_fft.h"
 #include <string.h>
 #include <stdio.h>
-#include <plot.h>
 #define PI (float)3.14159265358979323846
 typedef struct {
   float pmax; // Maximum allowable pitch period (seconds)
