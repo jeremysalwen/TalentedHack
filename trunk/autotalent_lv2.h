@@ -10,7 +10,10 @@
 #include "autotalent_lfo.h"
 #include <lv2.h>
 #include "event.h"
+
+#ifdef DEBUGPLOT
 #include <plot.h>
+#endif
 
 #define AUTOTALENT_URI "http://jeremy.salwen/plugins/autotalent"
 // The port numbers
