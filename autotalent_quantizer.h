@@ -70,7 +70,8 @@ MidiPitch FetchLatestMidiNote(Quantizer* q, int samplenum);
 
 MidiPitch pperiod_to_midi(Quantizer* q, float pperiod) ;
 
-float midi_to_pperiod(Quantizer* q, MidiPitch pitch);
+float midi_to_semitones(MidiPitch pitch);
+float semitones_to_pperiod(Quantizer* q, float semitones);
 
 int SnapToKey(int notes[12], int note, int snapup);
 

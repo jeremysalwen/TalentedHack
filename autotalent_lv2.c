@@ -7,7 +7,7 @@
    March 20, 2010
 
    LV2 Port by Jeremy A. Salwen
-   VERSION 1
+   VERSION 1.5
    May 30, 2010
 	   
    This program is free software; you can redistribute it and/or modify        
@@ -67,7 +67,6 @@ static void cleanupAutotalent(LV2_Handle instance)
 static void connectPortAutotalent(LV2_Handle instance, uint32_t port, void *data)
 {
 	Autotalent *plugin = (Autotalent *)instance;
-
 	switch (port) {
 		case AT_MIDI_OUT:
 			plugin->quantizer.MidiOut=data;
@@ -222,7 +221,7 @@ static LV2_Handle instantiateAutotalent(const LV2_Descriptor *descriptor,
 		fprintf (stderr, "Couldn't open Plotter\n");
 	}
 
-	pl_fspace (0, -1, 2048, 1);
+	pl_fspace (-1, -1, 1, 1);
 #endif
 	
 	PitchShifterInit(&membvars->pshifter, s_rate,N);
@@ -249,16 +248,25 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 {
 	Autotalent* psAutotalent = (Autotalent *)instance;
 	
-	UpdateFormantWarp(&psAutotalent->fcorrector);
-	UpdateQuantizer(&psAutotalent->quantizer);
-	lv2_event_begin(&psAutotalent->quantizer.in_iterator, psAutotalent->quantizer.MidiIn);
-	lv2_event_begin(&psAutotalent->quantizer.out_iterator, psAutotalent->quantizer.MidiOut);
 	unsigned long N = psAutotalent->buffer.cbsize;
 	unsigned long Nf = psAutotalent->buffer.corrsize;
 	float fs = psAutotalent->fs;
+	
+	UpdateFormantWarp(&psAutotalent->fcorrector);
+	UpdateQuantizer(&psAutotalent->quantizer);
+	UpdateLFO(&psAutotalent->lfo,N,psAutotalent->noverlap,fs);
+	lv2_event_begin(&psAutotalent->quantizer.in_iterator, psAutotalent->quantizer.MidiIn);
+	lv2_event_begin(&psAutotalent->quantizer.out_iterator, psAutotalent->quantizer.MidiOut);
+	
+	
+	
+
+	
 	const float* pfInput=psAutotalent->p_InputBuffer;
 	float* pfOutput=psAutotalent->p_OutputBuffer;
+	
 	int fcorr=*(psAutotalent->fcorrector.p_Fcorr);
+	
 	/*******************
 	 *  MAIN DSP LOOP  *
 	 *******************/
@@ -298,10 +306,13 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 					PullToInTune(&psAutotalent->quantizer, &note);
 				}
 				
-				//outpitch=addquantizedLFO(&psAutotalent->lfo,outpitch);
-				//outpitch=scale_to_semitones(&psAutotalent->lfo, outpitch, fs, N);
-				//outpitch=addunquantizedLFO(&psAutotalent->lfo,outpitch);
-				float outpperiod=midi_to_pperiod(&psAutotalent->quantizer,note);
+				note.note=addquantizedLFO(&psAutotalent->lfo,psAutotalent->quantizer.oNotes,note.note);
+				
+				float outpitch=midi_to_semitones(note);
+				
+				outpitch=addunquantizedLFO(&psAutotalent->lfo,outpitch);
+				
+				float outpperiod=semitones_to_pperiod(&psAutotalent->quantizer, outpitch);
 				// Compute variables for pitch shifter that depend on pitch
 				ComputePitchShifterVariables(&psAutotalent->pshifter, pperiod,outpperiod,fs);
 				psAutotalent->pshifter.active=1;

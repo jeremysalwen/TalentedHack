@@ -1,33 +1,28 @@
 #include "autotalent_lfo.h"
 
-float LFOval(LFO *lfo, int noverlap, long int fs, long int N) {
-	// LFO logic
-	float tf = (*lfo->p_rate)*N/(noverlap*fs);
-	if (tf>1) {
-		tf=1;
-	}
-	lfo->phase = lfo->phase + tf;
+float LFOval(LFO *lfo) {
+	lfo->phase = lfo->phase + lfo->increment;
 	if (lfo->phase>1) {
 		lfo->phase = lfo->phase-1;
 	}
+	//between 0 and 1, sawtooth
 	float result=lfo->phase;
-	tf = ((*lfo->p_symm) + 1)/2;
+	//between 0 and 1
+	float tf = ((*lfo->p_symm) + 1)/2;
 	if (tf<=0 || tf>=1) {
 		if (tf<=0) {
 			result = 1-result;
-		} else {
-			if (result<=tf) {
-				result /= tf;
-			}
-			else {
-				result = 1 - (result-tf)/(1-tf);
-			}
-		}
+		} 
+	}else if (result<=tf) {
+		result /= tf;
+	}	else {
+		result = 1 - (result-tf)/(1-tf);
 	}
+
 	if ((*lfo->p_shape)>=0) {
 		// linear combination of cos and line
 		result = (0.5 - 0.5*cos(result*PI))*(*lfo->p_shape) + result*(1-(*lfo->p_shape));
-		return (*lfo->p_amp)*(result*2 - 1);
+		result=(*lfo->p_amp)*(result*2 - 1);
 	} else {
 		// smoosh the sine horizontally until it's squarish
 		tf = 1 + (*lfo->p_shape);
@@ -43,7 +38,15 @@ float LFOval(LFO *lfo, int noverlap, long int fs, long int N) {
 		if (result<-1) {
 			result = -1;
 		}
-		return (*lfo->p_amp)*sin(result*PI*0.5);
+		result= (*lfo->p_amp)*sin(result*PI*0.5);
+	}
+	return result;
+}
+
+void UpdateLFO(LFO* lfo,unsigned long N, int noverlap, float fs) {
+	lfo->increment = (*lfo->p_rate)*N/(noverlap*fs);
+	if (lfo->increment>1) {
+		lfo->increment=1;
 	}
 }
 
@@ -51,16 +54,21 @@ void InstantiateLFO(LFO* lfo) {
 	lfo->phase = 0;
 };
 
-inline float addquantizedLFO(LFO* lfo, float output, float fs, int noverlap, unsigned int N) {
+inline float addquantizedLFO(LFO* lfo, int notes[12], int pitch) {
 	if ((*lfo->p_quant)>=1) {
-		output += (int)(12 * LFOval(lfo,fs,noverlap,N));
+		float val=12 * LFOval(lfo);
+		int pitchindex= (int)val;
+		int snapup=(val-pitchindex)>0;
+		pitchindex+=pitch;
+		pitch= SnapToKey(notes,pitchindex, snapup);//I guess we will snap up
 	}
-	return output;
+	
+	return pitch;
 }
 
-inline float addunquantizedLFO(LFO* lfo, float output, float fs, int noverlap, unsigned int N) {
+inline float addunquantizedLFO(LFO* lfo, float output) {
 	if (*lfo->p_quant<=0) {
-		output+=LFOval(lfo,fs,noverlap,N)*2;
+		output+=LFOval(lfo)*2;
 	}
 
 	if (output<-36) {

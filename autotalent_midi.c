@@ -94,7 +94,10 @@ MidiPitch FetchLatestMidiNote(Quantizer* q, int samplenum) {
 	return q->InPitch;
 }
 
-float midi_to_pperiod(Quantizer* q, MidiPitch note) {
-	float semitones=note.note-69+(note.pitchbend*6);
+float semitones_to_pperiod(Quantizer* q, float semitones) {
 	return pow(2,-semitones/12)/(*q->p_aref);
+}
+
+float midi_to_semitones(MidiPitch note) {
+	return note.note-69+(note.pitchbend*6);
 }

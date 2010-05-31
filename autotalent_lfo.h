@@ -1,6 +1,7 @@
 #ifndef AUTOTALENT_LFO_H
 #define AUTOTALENT_LFO_H
 #include <math.h>
+#include "autotalent_quantizer.h"
 #define PI (float)3.14159265358979323846
 
 typedef struct {
@@ -12,11 +13,17 @@ typedef struct {
   float* p_quant;
 
   float phase;
+
+  float increment;
 } LFO;
 
-float LFOval(LFO *lfo, int noverlap, long int fs, long int N);
+float LFOval(LFO *lfo);
 void InstantiateLFO(LFO* lfo);
 
-inline float addquantizedLFO(LFO* lfo, float output, float fs, int noverlap, unsigned int N);
-inline float addunquantizedLFO(LFO* lfo, float output, float fs, int noverlap, unsigned int N);
+inline float addquantizedLFO(LFO* lfo, int notes[12], int pitch);
+
+inline float addunquantizedLFO(LFO* lfo, float output);
+
+void UpdateLFO(LFO* lfo,unsigned long N, int noverlap, float fs);
+
 #endif
