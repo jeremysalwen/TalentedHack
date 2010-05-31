@@ -29,7 +29,7 @@
 #define AT_LFO_QUANT 8
 #define AT_LFO_AMP 9
 #define AT_LFO_RATE 10
-#define AT_LFO_SHAPE 111
+#define AT_LFO_SHAPE 11
 #define AT_LFO_SYMM 12
 #define AT_AREF 13
 #define AT_PULLPITCH_AMOUNT 14
