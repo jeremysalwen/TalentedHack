@@ -20,9 +20,9 @@ typedef struct {
 float LFOval(LFO *lfo);
 void InstantiateLFO(LFO* lfo);
 
-inline float addquantizedLFO(LFO* lfo, int notes[12], int pitch);
+float addquantizedLFO(LFO* lfo, int notes[12], int pitch);
 
-inline float addunquantizedLFO(LFO* lfo, float output);
+float addunquantizedLFO(LFO* lfo, float output);
 
 void UpdateLFO(LFO* lfo,unsigned long N, int noverlap, float fs);
 

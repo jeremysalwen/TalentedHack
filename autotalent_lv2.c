@@ -294,9 +294,11 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 			if(pperiod>0) {
 				MidiPitch note;
 				note=pperiod_to_midi(&psAutotalent->quantizer,pperiod);	
+				MidiPitch notein=note;
 				if(*psAutotalent->p_correct_midiout) {
 					PullToInTune(&psAutotalent->quantizer, &note);
 				}
+				
 				SendMidiOutput(&psAutotalent->quantizer,note,lSampleIndex);
 				//Now we begin to modify the note, to determine what pitch we want to shift to
 				MidiPitch input=FetchLatestMidiNote(&psAutotalent->quantizer,lSampleIndex);
@@ -310,6 +312,11 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 				
 				float outpitch=midi_to_semitones(note);
 				
+				if(notein.note!=note.note) {
+					printf("inpitch: %f\n",midi_to_semitones(notein));
+					printf("outpitch: %f\n",outpitch);
+					printf("innote %i, outnote %i\n",notein.note-69,note.note-69);
+				}
 				outpitch=addunquantizedLFO(&psAutotalent->lfo,outpitch);
 				
 				float outpperiod=semitones_to_pperiod(&psAutotalent->quantizer, outpitch);

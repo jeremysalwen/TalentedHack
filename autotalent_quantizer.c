@@ -85,20 +85,19 @@ void PullToInTune(Quantizer* q, MidiPitch* pitch) {
 */ 
 
 
-MidiPitch semitones_to_midi(const int* notes, float semitones) {
+MidiPitch semitones_to_midi(const int notes[12], float semitones) {
 	int prevsemitone=floor(semitones);
 	int nextsemitone=prevsemitone+1;
-	while (notes[(prevsemitone)%12]<0) {
+	while (notes[positive_mod(prevsemitone,12)]<0) {
 		prevsemitone--;
 	}
 	// finding next higher pitch in scale
-	while (notes[nextsemitone%12]<0) {
+	while (notes[positive_mod(nextsemitone,12)]<0) {
 		nextsemitone ++;
 	}
 	float lowdiff=semitones-prevsemitone; //positive
 	float highdiff=semitones-nextsemitone; //negative
 	MidiPitch result;
-
 	//This is because midi pitch bend commands are not linear (!)  When you bend up, you can go to a value of 8191, but when you bend down, you can go to a value of -8192
 	if(lowdiff<(-highdiff)) {//jumping down
 		result.note=prevsemitone;
@@ -152,15 +151,15 @@ MidiPitch MixMidiIn(Quantizer* q, MidiPitch detected, MidiPitch in) {
 
 int SnapToKey(int notes[12], int note, int snapup) {
 	int index=note -69;
-	if(notes[index%12]>=0) {
+	if(notes[positive_mod(index,12)]>=0) {
 		return note;
 	}
 	int lower=index-1;
 	int higher=index+1;
-	while(notes[lower%12]<0) {
+	while(notes[positive_mod(lower,12)]<0) {
 		lower--;
 	}
-	while(notes[higher%12]<0) {
+	while(notes[positive_mod(higher,1)]<0) {
 		higher++;
 	}
 	if(higher-index<index-lower) {
@@ -169,10 +168,10 @@ int SnapToKey(int notes[12], int note, int snapup) {
 	if(higher-index>index-lower) {
 		return lower+69;
 	}
-	if(notes[lower%12]>=1) {
+	if(notes[positive_mod(lower,12)]>=1) {
 		return lower+69;
 	}
-	if(notes[higher%12]>=1) {
+	if(notes[positive_mod(higher,12)]>=1) {
 		return higher+69;
 	}
 	if(snapup) {

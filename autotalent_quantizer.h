@@ -55,6 +55,7 @@ typedef struct {
 
 	LV2_Event_Buffer *MidiOut;
 	LV2_Event_Iterator out_iterator;
+
 } Quantizer;
 
 
@@ -78,4 +79,12 @@ int SnapToKey(int notes[12], int note, int snapup);
 MidiPitch MixMidiIn(Quantizer* q, MidiPitch detected, MidiPitch in);
 
 void UnVoiceMidi(Quantizer* q, int samplenum);
+
+inline int positive_mod(int A, int B) {
+	int C=A%B;
+	if(C<0) {
+		C+=B;
+	}
+	return C;
+};
 #endif
