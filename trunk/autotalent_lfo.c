@@ -54,7 +54,7 @@ void InstantiateLFO(LFO* lfo) {
 	lfo->phase = 0;
 };
 
-inline float addquantizedLFO(LFO* lfo, int notes[12], int pitch) {
+float addquantizedLFO(LFO* lfo, int notes[12], int pitch) {
 	if ((*lfo->p_quant)>=1) {
 		float val=12 * LFOval(lfo);
 		int pitchindex= (int)val;
@@ -66,7 +66,7 @@ inline float addquantizedLFO(LFO* lfo, int notes[12], int pitch) {
 	return pitch;
 }
 
-inline float addunquantizedLFO(LFO* lfo, float output) {
+float addunquantizedLFO(LFO* lfo, float output) {
 	if (*lfo->p_quant<=0) {
 		output+=LFOval(lfo)*2;
 	}
