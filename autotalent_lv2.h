@@ -8,6 +8,7 @@
 #include "autotalent_pitch_shifter.h"
 #include "autotalent_quantizer.h"
 #include "autotalent_lfo.h"
+#include "autotalent_pitch_smoother.h"
 #include <lv2.h>
 #include "event.h"
 
@@ -23,42 +24,43 @@
 #define AT_AUDIO_IN 2
 #define AT_AUDIO_OUT 3
 #define AT_MIX 4
-#define AT_FCORR 5
-#define AT_FWARP 6
-#define AT_CORR_MIDIOUT 7
-#define AT_LFO_QUANT 8
-#define AT_LFO_AMP 9
-#define AT_LFO_RATE 10
-#define AT_LFO_SHAPE 11
-#define AT_LFO_SYMM 12
-#define AT_AREF 13
-#define AT_PULLPITCH_AMOUNT 14
-#define AT_DA 15
-#define AT_DAA 16
-#define AT_DB 17
-#define AT_DC 18
-#define AT_DCC 19
-#define AT_DD 20
-#define AT_DDD 21
-#define AT_DE 22
-#define AT_DF 23
-#define AT_DFF 24
-#define AT_DG 25
-#define AT_DGG 26
-#define AT_OA 27
-#define AT_OAA 28
-#define AT_OB 29
-#define AT_OC 30
-#define AT_OCC 31
-#define AT_OD 32
-#define AT_ODD 33
-#define AT_OE 34
-#define AT_OF 35
-#define AT_OFF 36
-#define AT_OG 37
-#define AT_OGG 38
-#define AT_ACCEPT_MIDI 39
-#define AT_LATENCY 40
+#define AT_PULLPITCH_AMOUNT 5
+#define AT_PITCH_SMOOTH 6
+#define AT_FCORR 7
+#define AT_FWARP 8
+#define AT_ACCEPT_MIDI 9
+#define AT_CORR_MIDIOUT 10
+#define AT_LFO_QUANT 11
+#define AT_LFO_AMP 12
+#define AT_LFO_RATE 13
+#define AT_LFO_SHAPE 14
+#define AT_LFO_SYMM 15
+#define AT_AREF 16
+#define AT_DA 17
+#define AT_DAA 18
+#define AT_DB 19
+#define AT_DC 20
+#define AT_DCC 21
+#define AT_DD 22
+#define AT_DDD 23
+#define AT_DE 24
+#define AT_DF 25
+#define AT_DFF 26
+#define AT_DG 27
+#define AT_DGG 28
+#define AT_OA 29
+#define AT_OAA 30
+#define AT_OB 31
+#define AT_OC 32
+#define AT_OCC 33
+#define AT_OD 34
+#define AT_ODD 35
+#define AT_OE 36
+#define AT_OF 37
+#define AT_OFF 38
+#define AT_OG 39
+#define AT_OGG 40
+#define AT_LATENCY 41
 
 
 
@@ -82,6 +84,7 @@ typedef struct {
 	FormantCorrector fcorrector;
 	PitchDetector pdetector;
 	PitchShifter pshifter;
+	PitchSmoother psmoother;
 	Quantizer quantizer;
 	LFO lfo;
 	CircularBuffer buffer;

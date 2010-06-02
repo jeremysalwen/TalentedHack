@@ -97,6 +97,3 @@ void Interpolate(PitchShifter * pshifter, long int bound, long int N) {
 		pshifter->cbo[(i + pshifter->cbord + 3*N/2)%N] = pshifter->cbo[(i + pshifter->cbord + 3*N/2)%N] + vald*tf;
 	}
 }
-
-
-
