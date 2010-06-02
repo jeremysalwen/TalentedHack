@@ -1,5 +1,5 @@
-OBJS = autotalent_circular_buffer.o  autotalent_midi.o autotalent_fft.o autotalent_pitch_detector.o autotalent_formant_corrector.o autotalent_pitch_shifter.o autotalent_lfo.o autotalent_quantizer.o autotalent_lv2.o
-DEBUG =
+OBJS = autotalent_circular_buffer.o  autotalent_midi.o autotalent_fft.o autotalent_pitch_detector.o autotalent_formant_corrector.o autotalent_pitch_shifter.o autotalent_lfo.o autotalent_quantizer.o autotalent_lv2.o autotalent_pitch_smoother.o
+DEBUG =-g
 CFLAGS = --std=c99 -Wall -fPIC `pkg-config --cflags fftw3f` -O3 $(DEBUG)
 LDFLAGS = $(DEBUG) `pkg-config --libs fftw3f` -shared
 
@@ -16,7 +16,7 @@ clean:
 -include $(addprefix  dependencies/, $(OBJS:.o=.d))
 
 %.o:%.c
-	$(CC) -MMD -MP -c $(CFLAGS) $*.c -o $*.o
+	$(CC) -MMD -MP -c $(CFLAGS) $*.c -o $*.o; \
 	mv $*.d dependencies/
 install:
 	echo "Copying this directory to ~/.lv2 ..."

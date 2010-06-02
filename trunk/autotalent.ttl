@@ -54,6 +54,22 @@
   ],[
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 5;
+    lv2:symbol "pitchpull_amount";
+    lv2:name   "Pull To In Tune";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+  ],[
+    a lv2:ControlPort, lv2:InputPort;
+    lv2:index 6;
+    lv2:symbol "pitchsmooth_amount";
+    lv2:name   "Smooth Pitch";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+  ],[
+    a lv2:ControlPort, lv2:InputPort;
+    lv2:index 7;
     lv2:portProperty lv2:toggled;
     lv2:symbol "formant_correction";
     lv2:name   "Formant Correction";
@@ -64,7 +80,7 @@
     lv2:scalePoint [ rdfs:label "On";  rdf:value 1 ];
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 6;
+    lv2:index 8;
     lv2:symbol "formant_warp";
     lv2:name   "Formant Warp";
     lv2:minimum -1;
@@ -72,7 +88,18 @@
     lv2:default 0;
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 7;
+    lv2:index 9;
+    lv2:portProperty lv2:toggled;
+    lv2:symbol "accept_midi";
+    lv2:name   "Jump To Midi Input";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+    lv2:scalePoint [ rdfs:label "On"; rdf:value 1 ];
+    lv2:scalePoint [ rdfs:label "Off";  rdf:value 0 ];
+  ],[
+    a lv2:ControlPort, lv2:InputPort;
+    lv2:index 10;
     lv2:portProperty lv2:toggled;
     lv2:symbol "correct_midiout";
     lv2:name   "Pitch Correct Midi Out";
@@ -83,7 +110,7 @@
     lv2:scalePoint [ rdfs:label "Send Corrected Midi"; rdf:value 1 ];
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 8;
+    lv2:index 11;
     lv2:portProperty lv2:toggled;
     lv2:symbol "lfo_quant";
     lv2:name   "Quantize LFO";
@@ -94,7 +121,7 @@
     lv2:scalePoint [ rdfs:label "Send Corrected Midi"; rdf:value 1 ];
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 9;
+    lv2:index 12;
     lv2:symbol "lfo_amp";
     lv2:name   "LFO Amplitude";
     lv2:minimum 0;
@@ -102,7 +129,7 @@
     lv2:default 0;
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 10;
+    lv2:index 13;
     lv2:symbol "lfo_rate";
     lv2:name   "LFO Rate (Hz)";
     lv2:minimum 0;
@@ -110,7 +137,7 @@
     lv2:default 5;
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 11;
+    lv2:index 14;
     lv2:symbol "lfo_shape";
     lv2:name   "LFO Shape";
     lv2:minimum -1;
@@ -118,7 +145,7 @@
     lv2:default 0;
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 12;
+    lv2:index 15;
     lv2:symbol "lfo_symm";
     lv2:name   "LFO Symmetry";
     lv2:minimum -1;
@@ -126,23 +153,15 @@
     lv2:default 0;
   ],[
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 13;
+    lv2:index 16;
     lv2:symbol "aref";
     lv2:name   "Concert A (Hz)";
     lv2:minimum 400;
     lv2:maximum 480;
     lv2:default 440;
-  ],[
-    a lv2:ControlPort, lv2:InputPort;
-    lv2:index 14;
-    lv2:symbol "pitchpull_amount";
-    lv2:name   "Pull To In Tune";
-    lv2:minimum 0;
-    lv2:maximum 1;
-    lv2:default 0;
   ], [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 15;
+    lv2:index 17;
     lv2:symbol "da";
     lv2:name   "Detect A";
     lv2:minimum -1;
@@ -153,7 +172,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 16;
+    lv2:index 18;
     lv2:symbol "daa";
     lv2:name   "Detect A#";
     lv2:minimum -1;
@@ -165,7 +184,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 17;
+    lv2:index 19;
     lv2:symbol "db";
     lv2:name   "Detect B";
     lv2:minimum -1;
@@ -176,7 +195,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 18;
+    lv2:index 20;
     lv2:symbol "dc";
     lv2:name   "Detect C";
     lv2:minimum -1;
@@ -188,7 +207,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 19;
+    lv2:index 21;
     lv2:symbol "dcc";
     lv2:name   "Detect C#";
     lv2:minimum -1;
@@ -200,7 +219,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 20;
+    lv2:index 22;
     lv2:symbol "dd";
     lv2:name   "Detect D";
     lv2:minimum -1;
@@ -212,7 +231,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 21;
+    lv2:index 23;
     lv2:symbol "ddd";
     lv2:name   "Detect D#";
     lv2:minimum -1;
@@ -224,7 +243,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 22;
+    lv2:index 24;
     lv2:symbol "de";
     lv2:name   "Detect E";
     lv2:minimum -1;
@@ -236,7 +255,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 23;
+    lv2:index 25;
     lv2:symbol "df";
     lv2:name   "Detect F";
     lv2:minimum -1;
@@ -248,7 +267,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 24;
+    lv2:index 26;
     lv2:symbol "dff";
     lv2:name   "Detect F#";
     lv2:minimum -1;
@@ -260,7 +279,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 25;
+    lv2:index 27;
     lv2:symbol "dg";
     lv2:name   "Detect G";
     lv2:minimum -1;
@@ -271,7 +290,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 26;
+    lv2:index 28;
     lv2:symbol "dgg";
     lv2:name   "Detect G#";
     lv2:minimum -1;
@@ -282,7 +301,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ], [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 27;
+    lv2:index 29;
     lv2:symbol "oa";
     lv2:name   "Output A";
     lv2:minimum -1;
@@ -293,7 +312,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 28;
+    lv2:index 30;
     lv2:symbol "oaa";
     lv2:name   "Output A#";
     lv2:minimum -1;
@@ -305,7 +324,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 29;
+    lv2:index 31;
     lv2:symbol "ob";
     lv2:name   "Output B";
     lv2:minimum -1;
@@ -316,7 +335,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 30;
+    lv2:index 32;
     lv2:symbol "oc";
     lv2:name   "Output C";
     lv2:minimum -1;
@@ -328,7 +347,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 31;
+    lv2:index 33;
     lv2:symbol "occ";
     lv2:name   "Output C#";
     lv2:minimum -1;
@@ -340,7 +359,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 32;
+    lv2:index 34;
     lv2:symbol "od";
     lv2:name   "Output D";
     lv2:minimum -1;
@@ -352,7 +371,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 33;
+    lv2:index 35;
     lv2:symbol "odd";
     lv2:name   "Output D#";
     lv2:minimum -1;
@@ -364,7 +383,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 34;
+    lv2:index 36;
     lv2:symbol "oe";
     lv2:name   "Output E";
     lv2:minimum -1;
@@ -376,7 +395,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 35;
+    lv2:index 37;
     lv2:symbol "of";
     lv2:name   "Output F";
     lv2:minimum -1;
@@ -388,7 +407,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 36;
+    lv2:index 38;
     lv2:symbol "off";
     lv2:name   "Output F#";
     lv2:minimum -1;
@@ -400,7 +419,7 @@
   ],
   [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 37;
+    lv2:index 39;
     lv2:symbol "og";
     lv2:name   "Output G";
     lv2:minimum -1;
@@ -411,7 +430,7 @@
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ],  [
     a lv2:ControlPort, lv2:InputPort;
-    lv2:index 38;
+    lv2:index 40;
     lv2:symbol "ogg";
     lv2:name   "Output G#";
     lv2:minimum -1;
@@ -421,19 +440,8 @@
     lv2:scalePoint [ rdfs:label "Enabled";  rdf:value 0 ];
     lv2:scalePoint [ rdfs:label "Preferred";  rdf:value 1 ];
   ], [
-    a lv2:ControlPort, lv2:InputPort;
-    lv2:index 39;
-    lv2:portProperty lv2:toggled;
-    lv2:symbol "accept_midi";
-    lv2:name   "Jump To Midi Input";
-    lv2:minimum 0;
-    lv2:maximum 1;
-    lv2:default 0;
-    lv2:scalePoint [ rdfs:label "On"; rdf:value 1 ];
-    lv2:scalePoint [ rdfs:label "Off";  rdf:value 0 ];
-  ],[
     a lv2:ControlPort, lv2:OutputPort;
-    lv2:index 40;
+    lv2:index 41;
     lv2:portProperty lv2:reportsLatency;
     lv2:symbol "latency";
     lv2:name   "Latency";

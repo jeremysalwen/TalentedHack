@@ -50,39 +50,6 @@ void PullToInTune(Quantizer* q, MidiPitch* pitch) {
 
 //saved To later implement smooth gliding.
 
-/*float ModifyPitch(Quantizer * notes, float fnote,float fsmooth) {
-	const int* iNotes=notes->iNotes;
-
-	// The actual pitch correction
-	int ti = (int)(fnote+128) - 128;
-	float tf = fnote - ti - 0.5;
-	long int difference = nextsemitone-prevsemitone;
-	float transition_addition;
-	if (difference>2) { // if more than 2 semitones apart, put a 2-semitone-like transition halfway between
-		transition_addition= (float)difference/2;
-	} else {
-		transition_addition= (float)1;
-	}
-	if (fsmooth<0.001) {
-		fsmooth=0.001;
-	}
-	transition_addition= tf*transition_addition/fsmooth;
-	if (transition_addition<-0.5) transition_addition = -0.5;
-	if (transition_addition>0.5) transition_addition = 0.5;
-	transition_addition= 0.5*sin(PI*transition_addition) + 0.5; // jumping between notes using horizontally-scaled sine segment
-	transition_addition += ti;
-	if ( (tf<0.5 && lowersnap) || (tf>=0.5 && uppersnap) ) {
-		outpitch = transition_addition+(transition_addition-outpitch)*notes->p_amount;
-	}
-
-	// Add in pitch shift
-	outpitch = outpitch + *notes->p_shift;
-	return outpitch;
-	
-	//  ---- END Modify pitch in all kinds of ways! ----
-}
-
-*/ 
 
 
 MidiPitch semitones_to_midi(const int notes[12], float semitones) {
@@ -180,3 +147,4 @@ int SnapToKey(int notes[12], int note, int snapup) {
 		return lower+69;
 	}
 }
+

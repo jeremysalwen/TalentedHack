@@ -191,7 +191,11 @@ static void connectPortAutotalent(LV2_Handle instance, uint32_t port, void *data
 		case AT_LATENCY:
 			plugin->p_latency=data;
 			break;
-
+		case AT_PITCH_SMOOTH:
+			plugin->psmoother.p_pitchsmooth=data;
+			break;
+		default:
+			printf("Error, didn't connect port #%i",port);
 	}
 }
 
@@ -225,14 +229,12 @@ static LV2_Handle instantiateAutotalent(const LV2_Descriptor *descriptor,
 #endif
 	
 	PitchShifterInit(&membvars->pshifter, s_rate,N);
+	InitializePitchSmoother(&membvars->psmoother, N, membvars->noverlap, s_rate);
 	if(QuantizerInit(&membvars->quantizer,features)) {
 		return membvars;
 	} else {
 		return NULL;
 	}
-
-
-
 	
 }
 
@@ -257,10 +259,6 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 	UpdateLFO(&psAutotalent->lfo,N,psAutotalent->noverlap,fs);
 	lv2_event_begin(&psAutotalent->quantizer.in_iterator, psAutotalent->quantizer.MidiIn);
 	lv2_event_begin(&psAutotalent->quantizer.out_iterator, psAutotalent->quantizer.MidiOut);
-	
-	
-	
-
 	
 	const float* pfInput=psAutotalent->p_InputBuffer;
 	float* pfOutput=psAutotalent->p_OutputBuffer;
@@ -293,8 +291,7 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 			
 			if(pperiod>0) {
 				MidiPitch note;
-				note=pperiod_to_midi(&psAutotalent->quantizer,pperiod);	
-				MidiPitch notein=note;
+				note=pperiod_to_midi(&psAutotalent->quantizer,pperiod);
 				if(*psAutotalent->p_correct_midiout) {
 					PullToInTune(&psAutotalent->quantizer, &note);
 				}
@@ -312,19 +309,15 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 				
 				float outpitch=midi_to_semitones(note);
 				
-				if(notein.note!=note.note) {
-					printf("inpitch: %f\n",midi_to_semitones(notein));
-					printf("outpitch: %f\n",outpitch);
-					printf("innote %i, outnote %i\n",notein.note-69,note.note-69);
-				}
 				outpitch=addunquantizedLFO(&psAutotalent->lfo,outpitch);
-				
+				outpitch=SmoothPitch(&psAutotalent->psmoother,outpitch); 
 				float outpperiod=semitones_to_pperiod(&psAutotalent->quantizer, outpitch);
 				// Compute variables for pitch shifter that depend on pitch
 				ComputePitchShifterVariables(&psAutotalent->pshifter, pperiod,outpperiod,fs);
 				psAutotalent->pshifter.active=1;
 			} else { 
 				UnVoiceMidi(&psAutotalent->quantizer,lSampleIndex);
+				ResetPitchSmoother(&psAutotalent->psmoother);
 				psAutotalent->pshifter.active=0;
 			}
 		}
