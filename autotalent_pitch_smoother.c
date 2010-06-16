@@ -6,7 +6,7 @@ float SmoothPitch(PitchSmoother* s, float semitones) {
 		return semitones;
 	}
 	float diff=semitones-lastpitch;
-	float divisor=0.5*(*s->p_pitchsmooth)*s->periods_per_second;
+	float divisor=(*s->p_pitchsmooth)*s->periods_per_second;
 	float maxdiff=0.04;
 	if(divisor>1 && fabs(diff)>maxdiff) {
 		float toadd=diff/divisor;
