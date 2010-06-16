@@ -19,7 +19,7 @@ typedef struct {
   
 
   float vthresh; // Voiced speech threshold
-  float ppickthresh;
+  float ppickthresh;	
 } PitchDetector;
 
 const float * obtain_autocovariance(PitchDetector * pdetector,fft_vars* fftvars, CircularBuffer* buffer, long int N);
