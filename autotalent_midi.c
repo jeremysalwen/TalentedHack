@@ -5,6 +5,7 @@ void SendMidiCommand(Quantizer* q, int samplenum, uint8_t byte1 ,uint8_t byte2, 
 		buffer[0]=byte1;
 		buffer[1]=byte2;
 		buffer[2]=byte3;
+	if(! q->MidiOut) return;
 	if(!lv2_event_write(&q->out_iterator,samplenum,0,q->midi_event_id,3, buffer)) {
 		printf("Error!  Could not write midi event to buffer!\n");
 	};
@@ -71,6 +72,7 @@ inline void MidiEvtToPitch(uint8_t * midi_data, MidiPitch * pitch) {
 }
 
 MidiPitch FetchLatestMidiNote(Quantizer* q, int samplenum) {
+	if (! q->MidiIn) return q->InPitch;
 	while(lv2_event_is_valid(&q->in_iterator)) {
 		LV2_Event *in=lv2_event_get(&q->in_iterator,NULL);
 		if (in->type == 0) {
