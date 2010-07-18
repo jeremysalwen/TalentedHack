@@ -32,10 +32,11 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 		}
 #endif
 	}
-
+#ifdef DEBUGPLOT
 	if(!printed) {
 		printed=1;
 	}
+#endif
 	// Calculate FFT
 	fft_forward(fftvars);
 
