@@ -30,7 +30,7 @@
 
 static LV2_Descriptor *autotalentDescriptor = NULL;
 
-
+#ifdef DEBUGPLOT
 int updateScreen() {
 	printed=0;
 	while(1) {
@@ -42,6 +42,7 @@ int updateScreen() {
 	}
 	return 0;
 }
+#endif
 static void cleanupAutotalent(LV2_Handle instance)
 {
 	Autotalent * ATInstance=(Autotalent*)instance;
