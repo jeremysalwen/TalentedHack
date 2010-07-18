@@ -1,13 +1,40 @@
 #include "autotalent_pitch_detector.h"
+#include "autotalent_lv2.h"
+
+#ifdef DEBUGPLOT
+#include <time.h>
+
+
+void setpixel8(SDL_Surface *screen, int x, int y,Uint32 colour )
+{
+   Uint8 *pixmem8 = (Uint8*) screen->pixels  + y*1024 + x;
+   *pixmem8 = colour;
+}
+#endif
 const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars, CircularBuffer* buffer,long int N) {
+#ifdef DEBUGPLOT
+	if(!printed) {
+	    SDL_FillRect( screen, NULL, 0 );
+		
+	}
+
+	Uint32 colour= SDL_MapRGB( screen->format, 255,255,255);
+#endif
 	// Window and fill FFT buffer
 	long int i;
 	for (i=0; i<N; i++) {
 		float windowval=pdetector->cbwindow[i];
-		
 		float inputbuffer=buffer->cbi[(buffer->cbiwr-i+N)%N];
 		fftvars->ffttime[i] = inputbuffer*windowval;
-		//pl_fpoint(i,fftvars->ffttime[i]);
+#ifdef DEBUGPLOT
+	if(i&1 && !printed) {
+			setpixel8(screen,i/2,fftvars->ffttime[i]*-50+50,colour);
+		}
+#endif
+	}
+
+	if(!printed) {
+		printed=1;
 	}
 	// Calculate FFT
 	fft_forward(fftvars);
@@ -15,7 +42,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	// Remove DC
 	fftvars->complex[0][0] = 0;
 	fftvars->complex[0][1] = 0;
-    long int Nf=N/2;
+    	long int Nf=N/2;
 	// Take magnitude squared
 	for (i=1; i<Nf; i++) {
 		fftvars->complex[i][0] = (fftvars->complex[i][0] )*(fftvars->complex[i][0]) + (fftvars->complex[i][1])*(fftvars->complex[i][1]);
@@ -29,7 +56,10 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	float tf = (float)1/(fftvars->ffttime[0]); //Everything is divided by N because fftw doesn't normalize, and instead introduces a factor of N
 	for (i=1; i<N; i++) {
 		fftvars->ffttime[i] = fftvars->ffttime[i] * tf;
+		
 	}
+	
+
 	fftvars->ffttime[0] = 1;
 	
 	return fftvars->ffttime;

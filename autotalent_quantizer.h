@@ -41,7 +41,7 @@ typedef struct {
 	float* p_accept_midi;
 	
 	int iNotes[12];
-	int oNotes[12];
+	int oNotes[127];
 
 	float* p_aref; // A tuning reference (Hz)
 	
@@ -61,7 +61,7 @@ typedef struct {
 
 void UpdateQuantizer(Quantizer * q);
 
-int QuantizerInit(Quantizer* q, const LV2_Feature * const * features);
+void QuantizerInit(Quantizer* q, const LV2_Feature * const * features);
 
 void PullToInTune(Quantizer* q, MidiPitch* pitch);
 

@@ -29,7 +29,7 @@ void ComputePitchShifterVariables(PitchShifter * pshifter,float inpperiod, float
 
 }
 
-float ShiftPitch(PitchShifter * pshifter, float * cbf, unsigned long cbiwr, long int N) {
+float ShiftPitch(PitchShifter * pshifter, CircularBuffer * buffer, long int N) {
 	// Pitch shifter (kind of like a pitch-synchronous version of Fairbanks' technique)
 	//   Note: pitch estimate is naturally N/2 samples old
 	pshifter->phasein = pshifter->phasein + pshifter->inphinc; //This is like the total amount of the period we've been through.
@@ -39,10 +39,9 @@ float ShiftPitch(PitchShifter * pshifter, float * cbf, unsigned long cbiwr, long
 	//   When input phase resets, take a snippet from N/2 samples in the past
 	if (pshifter->phasein >= 1) {
 		pshifter->phasein = pshifter->phasein - 1;
-		long int fragment_beginning= cbiwr - N/2;
-		long int i;
-		 for (i=-N/2; i<N/2; i++) {
-			pshifter->frag[(i+N)%N] = cbf[(i + fragment_beginning + N)%N];
+		long fragment_beginning= buffer->cbiwr - N/2;
+		 for (long i=-N/2; i<N/2; i++) {
+			pshifter->frag[(i+N)%N] = buffer->cbf[(i + fragment_beginning + N)%N];
       }
 	}
 

@@ -31,6 +31,17 @@
 static LV2_Descriptor *autotalentDescriptor = NULL;
 
 
+int updateScreen() {
+	printed=0;
+	while(1) {
+		if(printed) {
+		    SDL_Flip(screen);
+			printed=0;
+		}
+		SDL_Delay(2);
+	}
+	return 0;
+}
 static void cleanupAutotalent(LV2_Handle instance)
 {
 	Autotalent * ATInstance=(Autotalent*)instance;
@@ -56,13 +67,11 @@ static void cleanupAutotalent(LV2_Handle instance)
   	free(ATInstance->fcorrector.fbuff);
   	free(ATInstance->fcorrector.ftvec);
 #ifdef DEBUGPLOT
-	 pl_selectpl (0);           
- 	 if (pl_deletepl (ATInstance->handle) < 0)
-    {
-      fprintf (stderr, "Couldn't delete Plotter\n");
-    }
+	SDL_FreeSurface(screen);
+    //Quit SDL
+    SDL_Quit();
 #endif
-		free(ATInstance);
+	free(ATInstance);
 }
 static void connectPortAutotalent(LV2_Handle instance, uint32_t port, void *data)
 {
@@ -214,28 +223,21 @@ static LV2_Handle instantiateAutotalent(const LV2_Descriptor *descriptor,
 	InstantiateLFO(&membvars->lfo);
 	FormantCorrectorInit(&membvars->fcorrector,s_rate,N);
 #ifdef DEBUGPLOT
-	if ((membvars->handle = pl_newpl ("X", NULL, NULL, stderr)) < 0)
-	{
-		fprintf (stderr, "Couldn't create Plotter\n");
+	//Start SDL
+    	SDL_Init( SDL_INIT_EVERYTHING );
+    	//Set up screen
+    	screen = SDL_SetVideoMode( 1024, 100, 8, SDL_HWSURFACE);
+	if ( (screen->flags & SDL_HWSURFACE) != SDL_HWSURFACE ) {
+     		 printf("Can't get hardware surface\n");
 	}
-	pl_selectpl (membvars->handle);        
-
-	if (pl_openpl() < 0)        
-	{
-		fprintf (stderr, "Couldn't open Plotter\n");
-	}
-
-	pl_fspace (-1, -1, 1, 1);
+	printf("%i bpp\n",screen->format->BitsPerPixel);
+	SDL_CreateThread(updateScreen, NULL);
 #endif
 	
 	PitchShifterInit(&membvars->pshifter, s_rate,N);
 	InitializePitchSmoother(&membvars->psmoother, N, membvars->noverlap, s_rate);
-	if(QuantizerInit(&membvars->quantizer,features)) {
-		return membvars;
-	} else {
-		return NULL;
-	}
-	
+	QuantizerInit(&membvars->quantizer,features);
+	return membvars;
 }
 
 inline void IncrementPointer(CircularBuffer * buffer) {
@@ -273,19 +275,18 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 		// load data into circular buffer
 		float in = (float) *(pfInput++);
 		
-		long int write_index = psAutotalent->buffer.cbiwr;
-		psAutotalent->buffer.cbi[write_index] = in;
+		psAutotalent->buffer.cbi[psAutotalent->buffer.cbiwr] = in;
 		if (fcorr>=1) {
 			RemoveFormants(&psAutotalent->fcorrector,&psAutotalent->buffer,in);
 		}
 		else {
-			psAutotalent->buffer.cbf[write_index] = in;
+			psAutotalent->buffer.cbf[psAutotalent->buffer.cbiwr] = in;
 		}
 		
 		IncrementPointer(&psAutotalent->buffer);
 		
 		// Every N/noverlap samples, run pitch estimation / manipulation code
-		if ((write_index)%(N/psAutotalent->noverlap) == 0) {
+		if ((psAutotalent->buffer.cbiwr)%(N/psAutotalent->noverlap) == 0) {
 			//  ---- Calculate pitch and confidence ----
 			float pperiod=get_pitch_period(&psAutotalent->pdetector, obtain_autocovariance(&psAutotalent->pdetector,psAutotalent->fmembvars,&psAutotalent->buffer,N),Nf,fs);
 			
@@ -323,9 +324,9 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 		}
 		
 		if(psAutotalent->pshifter.active) {
-			in=ShiftPitch(&psAutotalent->pshifter,psAutotalent->buffer.cbf, write_index, N);
+			in=ShiftPitch(&psAutotalent->pshifter,&psAutotalent->buffer, N);
 		}
-		unsigned int twoahead = (write_index + 2)%N;
+		unsigned int twoahead = (psAutotalent->buffer.cbiwr + 2)%N;
 		if (*psAutotalent->fcorrector.p_Fcorr>=1) {
 			in=AddFormants(&psAutotalent->fcorrector,in,twoahead);
 		} else {

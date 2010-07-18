@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "autotalent_pitch_detector.h"
+#include "autotalent_circular_buffer.h"
  typedef struct {
 // VARIABLES FOR PITCH SHIFTER
   float phprdd; // default (unvoiced) phase period
@@ -32,7 +33,7 @@ void PitchShifterInit(PitchShifter * pshifter, unsigned long SampleRate, unsigne
 
 void ComputePitchShifterVariables(PitchShifter * pshifter, float inpperiod, float outpperiod, float fs);
 
-float ShiftPitch(PitchShifter * pshifter, float * cbf, unsigned long cbiwr, long int N);
+float ShiftPitch(PitchShifter * pshifter, CircularBuffer * buffer, long int N);
 
 void Interpolate(PitchShifter * pshifter, long int bounds, long int N);
 #endif
