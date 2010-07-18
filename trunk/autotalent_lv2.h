@@ -13,7 +13,7 @@
 #include "event.h"
 
 #ifdef DEBUGPLOT
-#include <plot.h>
+#include "SDL/SDL.h"
 #endif
 
 #define AUTOTALENT_URI "http://jeremy.salwen/plugins/autotalent"
@@ -89,9 +89,10 @@ typedef struct {
 	LFO lfo;
 	CircularBuffer buffer;
 
-#ifdef DEBUGPLOT
-	int handle;
-#endif
-} Autotalent;
 
+} Autotalent;
+#ifdef DEBUGPLOT
+	 SDL_Surface* screen;
+     int printed;
+#endif
 #endif

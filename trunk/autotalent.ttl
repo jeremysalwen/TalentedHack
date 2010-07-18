@@ -27,12 +27,14 @@
     ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "midi_out";
     lv2:name "MIDI Out";
+    lv2:portProperty lv2:connectionOptional;
   ] , [
     a ev:EventPort, lv2:InputPort;
     lv2:index 1;
     ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "midi_in";
     lv2:name "MIDI In";
+    lv2:portProperty lv2:connectionOptional;
   ] , [
     a lv2:AudioPort, lv2:InputPort;
     lv2:index 2;

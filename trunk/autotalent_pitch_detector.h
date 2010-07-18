@@ -6,6 +6,8 @@
 #include "autotalent_fft.h"
 #include <string.h>
 #include <stdio.h>
+#include <plot.h>
+#include <SDL/SDL.h>
 #define PI (float)3.14159265358979323846
 typedef struct {
   float pmax; // Maximum allowable pitch period (seconds)
@@ -17,7 +19,6 @@ typedef struct {
   float* cbwindow;  //cosine window;
   float* acwinv; // inverse of autocorrelation of window
   
-
   float vthresh; // Voiced speech threshold
   float ppickthresh;	
 } PitchDetector;

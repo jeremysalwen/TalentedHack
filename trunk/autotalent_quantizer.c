@@ -19,7 +19,6 @@ void CopyNotesToBuffer(Notes* notes, int buffer[12]) {
 void UpdateQuantizer(Quantizer * q) {
 	CopyNotesToBuffer(&q->inotes,q->iNotes);
 	CopyNotesToBuffer(&q->onotes,q->oNotes);
-
 	int numin=0;
 	int numout=0;
 	int i;
@@ -82,9 +81,11 @@ MidiPitch pperiod_to_midi(Quantizer* q, float pperiod) {
 	return semitones_to_midi(q->iNotes,semitones);
 }
 
-int QuantizerInit(Quantizer* q, const LV2_Feature * const * features) {
+void QuantizerInit(Quantizer* q, const LV2_Feature * const * features) {
 	q->InPitch.note=0;
 	q->OutPitch.note=0;
+	q->midi_event_id = 0;
+	q->event_ref = 0;
 	LV2_URI_Map_Feature *map_feature;
 	const LV2_Feature * const *  i;
 	for (i = features; *i; i++) {
@@ -100,10 +101,7 @@ int QuantizerInit(Quantizer* q, const LV2_Feature * const * features) {
   }
   if (q->midi_event_id == 0 || q->event_ref == NULL)
   {
-    printf("init failed, missing host features, leaving\n");
-    return 0;
-  } else {
-	return 1;
+    fprintf(stderr, "autotalent LV2: MIDI support not supported in host... disabling.\n");
   }
 }
 
