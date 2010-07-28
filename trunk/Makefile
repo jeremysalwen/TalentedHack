@@ -6,7 +6,7 @@ LDFLAGS = $(DEBUG) `pkg-config --libs fftw3f` -shared
 all: autotalent_lv2.so
 
 autotalent_lv2.so: $(OBJS)
-	ld $(LDFLAGS) $(OBJS) -o autotalent_lv2.so
+	$(CC) $(LDFLAGS) $(OBJS) -o autotalent_lv2.so
 cleanall: clean
 	-rm autotalent_lv2.so &>/dev/null;
 clean:
