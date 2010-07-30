@@ -16,7 +16,7 @@
 #include "SDL/SDL.h"
 #endif
 
-#define AUTOTALENT_URI "http://jeremy.salwen/plugins/autotalent"
+#define TALENTEDHACK_URI "http://jeremy.salwen/plugins/talentedhack"
 // The port numbers
 
 #define AT_MIDI_OUT 0
@@ -90,7 +90,8 @@ typedef struct {
 	CircularBuffer buffer;
 
 
-} Autotalent;
+} TalentedHack
+;
 #ifdef DEBUGPLOT
 	 SDL_Surface* screen;
      int printed;
