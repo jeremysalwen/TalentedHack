@@ -32,7 +32,7 @@
 
 #include "talentedhack.h"
 
-static LV2_Descriptor *autotalentDescriptor = NULL;
+static LV2_Descriptor *TalentedHackDescriptor = NULL;
 
 #ifdef DEBUGPLOT
 int updateScreen() {
@@ -47,9 +47,9 @@ int updateScreen() {
 	return 0;
 }
 #endif
-static void cleanupAutotalent(LV2_Handle instance)
+static void cleanupTalentedHack(LV2_Handle instance)
 {
-	Autotalent * ATInstance=(Autotalent*)instance;
+	TalentedHack * ATInstance=(TalentedHack*)instance;
 	fft_des(ATInstance->fmembvars);
  	free(ATInstance->buffer.cbi);
 	free(ATInstance->buffer.cbf);
@@ -78,9 +78,9 @@ static void cleanupAutotalent(LV2_Handle instance)
 #endif
 	free(ATInstance);
 }
-static void connectPortAutotalent(LV2_Handle instance, uint32_t port, void *data)
+static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *data)
 {
-	Autotalent *plugin = (Autotalent *)instance;
+	TalentedHack *plugin = (TalentedHack *)instance;
 	switch (port) {
 		case AT_MIDI_OUT:
 			plugin->quantizer.MidiOut=data;
@@ -213,11 +213,11 @@ static void connectPortAutotalent(LV2_Handle instance, uint32_t port, void *data
 	}
 }
 
-static LV2_Handle instantiateAutotalent(const LV2_Descriptor *descriptor,
+static LV2_Handle instantiateTalentedHack(const LV2_Descriptor *descriptor,
 	    double s_rate, const char *path,
 	    const LV2_Feature * const* features)
 {
-	Autotalent *membvars = (Autotalent *)malloc(sizeof(Autotalent));
+	TalentedHack *membvars = (TalentedHack *)malloc(sizeof(TalentedHack));
 	InstantiateCircularBuffer(&membvars->buffer,s_rate);
 	unsigned long N=membvars->buffer.cbsize;
 	membvars->fmembvars = fft_con(N);
@@ -253,24 +253,24 @@ inline void IncrementPointer(CircularBuffer * buffer) {
 	}
 }
 
-static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
+static void runTalentedHack(LV2_Handle instance, uint32_t sample_count)
 {
-	Autotalent* psAutotalent = (Autotalent *)instance;
+	TalentedHack* psTalentedHack = (TalentedHack *)instance;
 	
-	unsigned long N = psAutotalent->buffer.cbsize;
-	unsigned long Nf = psAutotalent->buffer.corrsize;
-	float fs = psAutotalent->fs;
+	unsigned long N = psTalentedHack->buffer.cbsize;
+	unsigned long Nf = psTalentedHack->buffer.corrsize;
+	float fs = psTalentedHack->fs;
 	
-	UpdateFormantWarp(&psAutotalent->fcorrector);
-	UpdateQuantizer(&psAutotalent->quantizer);
-	UpdateLFO(&psAutotalent->lfo,N,psAutotalent->noverlap,fs);
-	lv2_event_begin(&psAutotalent->quantizer.in_iterator, psAutotalent->quantizer.MidiIn);
-	lv2_event_begin(&psAutotalent->quantizer.out_iterator, psAutotalent->quantizer.MidiOut);
+	UpdateFormantWarp(&psTalentedHack->fcorrector);
+	UpdateQuantizer(&psTalentedHack->quantizer);
+	UpdateLFO(&psTalentedHack->lfo,N,psTalentedHack->noverlap,fs);
+	lv2_event_begin(&psTalentedHack->quantizer.in_iterator, psTalentedHack->quantizer.MidiIn);
+	lv2_event_begin(&psTalentedHack->quantizer.out_iterator, psTalentedHack->quantizer.MidiOut);
 	
-	const float* pfInput=psAutotalent->p_InputBuffer;
-	float* pfOutput=psAutotalent->p_OutputBuffer;
+	const float* pfInput=psTalentedHack->p_InputBuffer;
+	float* pfOutput=psTalentedHack->p_OutputBuffer;
 	
-	int fcorr=*(psAutotalent->fcorrector.p_Fcorr);
+	int fcorr=*(psTalentedHack->fcorrector.p_Fcorr);
 	
 	/*******************
 	 *  MAIN DSP LOOP  *
@@ -280,97 +280,97 @@ static void runAutotalent(LV2_Handle instance, uint32_t sample_count)
 		// load data into circular buffer
 		float in = (float) *(pfInput++);
 		
-		psAutotalent->buffer.cbi[psAutotalent->buffer.cbiwr] = in;
+		psTalentedHack->buffer.cbi[psTalentedHack->buffer.cbiwr] = in;
 		if (fcorr>=1) {
-			RemoveFormants(&psAutotalent->fcorrector,&psAutotalent->buffer,in);
+			RemoveFormants(&psTalentedHack->fcorrector,&psTalentedHack->buffer,in);
 		}
 		else {
-			psAutotalent->buffer.cbf[psAutotalent->buffer.cbiwr] = in;
+			psTalentedHack->buffer.cbf[psTalentedHack->buffer.cbiwr] = in;
 		}
 		
-		IncrementPointer(&psAutotalent->buffer);
+		IncrementPointer(&psTalentedHack->buffer);
 		
 		// Every N/noverlap samples, run pitch estimation / manipulation code
-		if ((psAutotalent->buffer.cbiwr)%(N/psAutotalent->noverlap) == 0) {
+		if ((psTalentedHack->buffer.cbiwr)%(N/psTalentedHack->noverlap) == 0) {
 			//  ---- Calculate pitch and confidence ----
-			float pperiod=get_pitch_period(&psAutotalent->pdetector, obtain_autocovariance(&psAutotalent->pdetector,psAutotalent->fmembvars,&psAutotalent->buffer,N),Nf,fs);
+			float pperiod=get_pitch_period(&psTalentedHack->pdetector, obtain_autocovariance(&psTalentedHack->pdetector,psTalentedHack->fmembvars,&psTalentedHack->buffer,N),Nf,fs);
 			
 			if(pperiod>0) {
 				MidiPitch note;
-				note=pperiod_to_midi(&psAutotalent->quantizer,pperiod);
-				if(*psAutotalent->p_correct_midiout) {
-					PullToInTune(&psAutotalent->quantizer, &note);
+				note=pperiod_to_midi(&psTalentedHack->quantizer,pperiod);
+				if(*psTalentedHack->p_correct_midiout) {
+					PullToInTune(&psTalentedHack->quantizer, &note);
 				}
 				
-				SendMidiOutput(&psAutotalent->quantizer,note,lSampleIndex);
+				SendMidiOutput(&psTalentedHack->quantizer,note,lSampleIndex);
 				//Now we begin to modify the note, to determine what pitch we want to shift to
-				MidiPitch input=FetchLatestMidiNote(&psAutotalent->quantizer,lSampleIndex);
-				note=MixMidiIn(&psAutotalent->quantizer,note,input);
-				note.note=SnapToKey(psAutotalent->quantizer.oNotes, note.note, note.pitchbend>0);
-				if(!*psAutotalent->p_correct_midiout) {
-					PullToInTune(&psAutotalent->quantizer, &note);
+				MidiPitch input=FetchLatestMidiNote(&psTalentedHack->quantizer,lSampleIndex);
+				note=MixMidiIn(&psTalentedHack->quantizer,note,input);
+				note.note=SnapToKey(psTalentedHack->quantizer.oNotes, note.note, note.pitchbend>0);
+				if(!*psTalentedHack->p_correct_midiout) {
+					PullToInTune(&psTalentedHack->quantizer, &note);
 				}
 				
-				note.note=addquantizedLFO(&psAutotalent->lfo,psAutotalent->quantizer.oNotes,note.note);
+				note.note=addquantizedLFO(&psTalentedHack->lfo,psTalentedHack->quantizer.oNotes,note.note);
 				
 				float outpitch=midi_to_semitones(note);
 				
-				outpitch=addunquantizedLFO(&psAutotalent->lfo,outpitch);
-				outpitch=SmoothPitch(&psAutotalent->psmoother,outpitch); 
-				float outpperiod=semitones_to_pperiod(&psAutotalent->quantizer, outpitch);
+				outpitch=addunquantizedLFO(&psTalentedHack->lfo,outpitch);
+				outpitch=SmoothPitch(&psTalentedHack->psmoother,outpitch); 
+				float outpperiod=semitones_to_pperiod(&psTalentedHack->quantizer, outpitch);
 				// Compute variables for pitch shifter that depend on pitch
-				ComputePitchShifterVariables(&psAutotalent->pshifter, pperiod,outpperiod,fs);
-				psAutotalent->pshifter.active=1;
+				ComputePitchShifterVariables(&psTalentedHack->pshifter, pperiod,outpperiod,fs);
+				psTalentedHack->pshifter.active=1;
 			} else { 
-				UnVoiceMidi(&psAutotalent->quantizer,lSampleIndex);
-				ResetPitchSmoother(&psAutotalent->psmoother);
-				psAutotalent->pshifter.active=0;
+				UnVoiceMidi(&psTalentedHack->quantizer,lSampleIndex);
+				ResetPitchSmoother(&psTalentedHack->psmoother);
+				psTalentedHack->pshifter.active=0;
 			}
 		}
 		
-		if(psAutotalent->pshifter.active) {
-			in=ShiftPitch(&psAutotalent->pshifter,&psAutotalent->buffer, N);
+		if(psTalentedHack->pshifter.active) {
+			in=ShiftPitch(&psTalentedHack->pshifter,&psTalentedHack->buffer, N);
 		}
-		unsigned int twoahead = (psAutotalent->buffer.cbiwr + 2)%N;
-		if (*psAutotalent->fcorrector.p_Fcorr>=1) {
-			in=AddFormants(&psAutotalent->fcorrector,in,twoahead);
+		unsigned int twoahead = (psTalentedHack->buffer.cbiwr + 2)%N;
+		if (*psTalentedHack->fcorrector.p_Fcorr>=1) {
+			in=AddFormants(&psTalentedHack->fcorrector,in,twoahead);
 		} else {
-			psAutotalent->fcorrector.fmute = 0;
+			psTalentedHack->fcorrector.fmute = 0;
 		}
 
 		// Write audio to output of plugin
 		// Mix (blend between original (delayed) =0 and processed =1)
-		*(pfOutput++)=(*psAutotalent->p_mix)*in + (1-(*psAutotalent->p_mix))*psAutotalent->buffer.cbi[twoahead];
+		*(pfOutput++)=(*psTalentedHack->p_mix)*in + (1-(*psTalentedHack->p_mix))*psTalentedHack->buffer.cbi[twoahead];
 		
 	}
-	FetchLatestMidiNote(&psAutotalent->quantizer,sample_count-1);
+	FetchLatestMidiNote(&psTalentedHack->quantizer,sample_count-1);
 	// Tell the host the algorithm latency
-	*(psAutotalent->p_latency) = (N-1);
+	*(psTalentedHack->p_latency) = (N-1);
 }
 
 static void init()
 {
-	autotalentDescriptor =
+	TalentedHackDescriptor =
 	 (LV2_Descriptor *)malloc(sizeof(LV2_Descriptor));
 
-	autotalentDescriptor->URI = AUTOTALENT_URI;
-	autotalentDescriptor->activate = NULL;
-	autotalentDescriptor->cleanup = cleanupAutotalent;
-	autotalentDescriptor->connect_port = connectPortAutotalent;
-	autotalentDescriptor->deactivate = NULL;
-	autotalentDescriptor->instantiate = instantiateAutotalent;
-	autotalentDescriptor->run = runAutotalent;
-	autotalentDescriptor->extension_data = NULL;
+	TalentedHackDescriptor->URI = TALENTEDHACK_URI;
+	TalentedHackDescriptor->activate = NULL;
+	TalentedHackDescriptor->cleanup = cleanupTalentedHack;
+	TalentedHackDescriptor->connect_port = connectPortTalentedHack;
+	TalentedHackDescriptor->deactivate = NULL;
+	TalentedHackDescriptor->instantiate = instantiateTalentedHack;
+	TalentedHackDescriptor->run = runTalentedHack;
+	TalentedHackDescriptor->extension_data = NULL;
 }
 
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor *lv2_descriptor(uint32_t index)
 {
-	if (!autotalentDescriptor) init();
+	if (!TalentedHackDescriptor) init();
 
 	switch (index) {
 	case 0:
-		return autotalentDescriptor;
+		return TalentedHackDescriptor;
 	default:
 		return NULL;
 	}
