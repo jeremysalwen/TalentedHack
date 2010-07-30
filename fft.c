@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "autotalent_fft.h"
+#include "fft.h"
 
 // Constructor for FFT routine
 fft_vars* fft_con(int nfft) {

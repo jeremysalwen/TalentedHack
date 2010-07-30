@@ -1,4 +1,4 @@
-#include "autotalent_quantizer.h"
+#include "quantizer.h"
 
 
 void CopyNotesToBuffer(Notes* notes, int buffer[12]) {

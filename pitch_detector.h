@@ -2,8 +2,8 @@
 #define AUTOTALENT_PITCH_DETECTOR_H
 
 #include <math.h>
-#include "autotalent_circular_buffer.h"
-#include "autotalent_fft.h"
+#include "circular_buffer.h"
+#include "fft.h"
 #include <string.h>
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-#include "autotalent_circular_buffer.h"
+#include "circular_buffer.h"
 
 void InstantiateCircularBuffer(CircularBuffer * buffer, unsigned long SampleRate) {
 	if (SampleRate>=88200) {

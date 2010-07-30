@@ -1,4 +1,4 @@
-#include "autotalent_formant_corrector.h"
+#include "formant_corrector.h"
 
 void FormantCorrectorInit(FormantCorrector * fcorrector, unsigned long SampleRate, int cbsize) {
 	// Initialize formant corrector

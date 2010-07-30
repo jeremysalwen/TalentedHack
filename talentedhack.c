@@ -1,14 +1,18 @@
-/* autotalent.c
-   An auto-tuning LADSPA plugin (adapted to LV2).
+/* talentedhack.c
+   An auto-tuning LV2 plugin.
+   
+   by Jeremy A. Salwen
+   VERSION 1.82
+   Jul 30, 2010
+
+   Based on Autotalent, which is
 
    Free software by Thomas A. Baran.
    http://web.mit.edu/tbaran/www/autotalent.html
    VERSION 0.2
    March 20, 2010
 
-   LV2 Port by Jeremy A. Salwen
-   VERSION 1.5
-   May 30, 2010
+  
 	   
    This program is free software; you can redistribute it and/or modify        
    it under the terms of the GNU General Public License as published by        
@@ -26,7 +30,7 @@
 
  */
 
-#include "autotalent_lv2.h"
+#include "talentedhack.h"
 
 static LV2_Descriptor *autotalentDescriptor = NULL;
 

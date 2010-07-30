@@ -1,4 +1,4 @@
-#include "autotalent_lfo.h"
+#include "lfo.h"
 
 float LFOval(LFO *lfo) {
 	lfo->phase = lfo->phase + lfo->increment;

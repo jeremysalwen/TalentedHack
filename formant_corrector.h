@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include "autotalent_circular_buffer.h"
+#include "circular_buffer.h"
  // VARIABLES FOR FORMANT CORRECTOR
  typedef struct {
   int* p_Fcorr;

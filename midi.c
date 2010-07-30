@@ -1,4 +1,4 @@
-#include "autotalent_quantizer.h"
+#include "quantizer.h"
 
 void SendMidiCommand(Quantizer* q, int samplenum, uint8_t byte1 ,uint8_t byte2, uint8_t byte3) {
 		uint8_t buffer[3];

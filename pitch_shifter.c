@@ -1,4 +1,4 @@
-#include "autotalent_pitch_shifter.h"
+#include "pitch_shifter.h"
 #include <stdio.h>
 void PitchShifterInit(PitchShifter * pshifter, unsigned long SampleRate, unsigned long cbsize) {
 	// Pitch shifter initialization
