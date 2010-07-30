@@ -3,12 +3,12 @@
 
 //#define DEBUGPLOT
 
-#include "autotalent_formant_corrector.h"
-#include "autotalent_pitch_detector.h"
-#include "autotalent_pitch_shifter.h"
-#include "autotalent_quantizer.h"
-#include "autotalent_lfo.h"
-#include "autotalent_pitch_smoother.h"
+#include "formant_corrector.h"
+#include "pitch_detector.h"
+#include "pitch_shifter.h"
+#include "quantizer.h"
+#include "lfo.h"
+#include "pitch_smoother.h"
 #include <lv2.h>
 #include "event.h"
 

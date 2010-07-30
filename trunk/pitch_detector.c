@@ -1,5 +1,5 @@
-#include "autotalent_pitch_detector.h"
-#include "autotalent_lv2.h"
+#include "pitch_detector.h"
+#include "lv2.h"
 
 #ifdef DEBUGPLOT
 #include <time.h>

@@ -5,8 +5,8 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "autotalent_pitch_detector.h"
-#include "autotalent_circular_buffer.h"
+#include "pitch_detector.h"
+#include "circular_buffer.h"
  typedef struct {
 // VARIABLES FOR PITCH SHIFTER
   float phprdd; // default (unvoiced) phase period

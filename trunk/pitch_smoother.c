@@ -1,4 +1,4 @@
-#include "autotalent_pitch_smoother.h"
+#include "pitch_smoother.h"
 float SmoothPitch(PitchSmoother* s, float semitones) {
 	float lastpitch=s->lastpitch;
 	if(lastpitch==0 || *s->p_pitchsmooth==0) {

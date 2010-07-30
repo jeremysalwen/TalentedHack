@@ -1,7 +1,7 @@
 #ifndef AUTOTALENT_LFO_H
 #define AUTOTALENT_LFO_H
 #include <math.h>
-#include "autotalent_quantizer.h"
+#include "quantizer.h"
 #define PI (float)3.14159265358979323846
 
 typedef struct {
