@@ -16,7 +16,7 @@
 #include "SDL/SDL.h"
 #endif
 
-#define TALENTEDHACK_URI "http://jeremy.salwen/plugins/talentedhack"
+#define TALENTEDHACK_URI "urn:jeremy.salwen:plugins:talentedhack"
 // The port numbers
 
 #define AT_MIDI_OUT 0
