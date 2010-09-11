@@ -5,70 +5,65 @@ void FormantCorrectorInit(FormantCorrector * fcorrector, unsigned long SampleRat
 	fcorrector->ford = 7; // should be sufficient to capture formants
 	fcorrector->falph = pow(0.001, (float) 80 / (SampleRate));
 	fcorrector->flamb = -(0.8517*sqrt(atan(0.06583*SampleRate))-0.1916); // or about -0.88 @ 44.1kHz
-	fcorrector->fk = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->fb = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->fc = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->frb = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->frc = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->fsig = calloc(fcorrector->ford, sizeof(float));
-	fcorrector->fsmooth = calloc(fcorrector->ford, sizeof(float));
+    fcorrector->flevels=calloc(fcorrector->ford, sizeof(FormantLevel));
 	fcorrector->fhp = 0;
 	fcorrector->flp = 0;
 	fcorrector->flpa = pow(0.001, (float) 10 / (SampleRate));
-	fcorrector->fbuff = (float**) malloc((fcorrector->ford)*sizeof(float*));
 	int i;
 	for (i=0; i<fcorrector->ford; i++) {
-		fcorrector->fbuff[i] = calloc(cbsize, sizeof(float));
+		fcorrector->flevels[i].buff = calloc(cbsize, sizeof(float));
 	}
-	fcorrector->ftvec = calloc(fcorrector->ford, sizeof(float));
 	fcorrector->fmute = 1;
 	fcorrector->fmutealph = pow(0.001, (float)1 / (SampleRate));
 }
 
+
+float FormantRemovalIteration(FormantLevel* level, float falph, float flamb, float *fa, float* fb) {
+        float foma=(1-falph);
+	    level->sig = (*fa)*(*fa)*foma + level->sig*falph;
+		float fc = (*fb-(level->c))*(flamb) + level->b;
+
+		level->c=fc;
+	    level->b=*fb;
+		float fk_tmp = (*fa)*fc*foma + level->k*falph;
+		level->k = fk_tmp;
+		float result = fk_tmp/(level->sig+ 0.000001);
+		result = result*foma + level->smooth*falph;
+		level->smooth = result;
+		*fb = fc - result*(*fa);
+		*fa = *fa - result*fc;
+	    return result;
+}
 // tf is signal input
 void RemoveFormants(FormantCorrector * fcorrector, CircularBuffer* buffer, float tf) {
-	float foma=1-fcorrector->falph;
-	// Somewhat experimental formant corrector
+    // Somewhat experimental formant corrector
 	//  formants are removed using an adaptive pre-filter and
 	//  re-introduced after pitch manipulation using post-filter
+                    
 	float fa = tf - fcorrector->fhp; // highpass pre-emphasis filter
-	fcorrector->fhp = tf;
-	float fb = fa;
+    fcorrector->fhp = fa;
+    float fb = fa;
 	
 	int i;
 	for (i=0; i<(fcorrector->ford); i++) {
-		fcorrector->fsig[i] = fa*fa*foma + fcorrector->fsig[i]*fcorrector->falph;
-		float fc = (fb-(fcorrector->fc[i]))*(fcorrector->flamb) + fcorrector->fb[i];
-		fcorrector->fc[i] = fc;
-		fcorrector->fb[i] = fb;
-		float fk_tmp = fa*fc*foma + fcorrector->fk[i]*fcorrector->falph;
-		fcorrector->fk[i] = fk_tmp;
-		tf = fk_tmp/(fcorrector->fsig[i] + 0.000001);
-		tf = tf*foma + fcorrector->fsmooth[i]*fcorrector->falph;
-		fcorrector->fsmooth[i] = tf;
-		fcorrector->fbuff[i][buffer->cbiwr] = tf;
-		fb = fc - tf*fa;
-		fa = fa - tf*fc;
+		FormantLevel* level=&fcorrector->flevels[i];
+		level->buff[buffer->cbiwr]=FormantRemovalIteration(level,fcorrector->falph, fcorrector->flamb,&fa,&fb);
 	}
 	buffer->cbf[buffer->cbiwr] = fa;
 	// Now hopefully the formants are reduced
-	// More formant correction code at the end of the DSP loop
+	// More formant correction code at the end of the DSP loops
 }
 float FormantCorrectorIteration(FormantCorrector* fcorrector, float fa, long int writepoint) {
 	float fb=fa;
-	int i;
-	for (i=0; i<fcorrector->ford; i++) {
-		float fc = (fb-fcorrector->frc[i])*fcorrector->frlamb + fcorrector->frb[i];
-		float tf = fcorrector->fbuff[i][writepoint];
+	for (int i=0; i<fcorrector->ford; i++) {
+		FormantLevel level=fcorrector->flevels[i];
+		float fc = (fb-level.rc)*fcorrector->frlamb + level.rb;
+		float tf = level.buff[writepoint];
 		fb = fc - tf*fa;
-		fcorrector->ftvec[i] = tf*fc;
-		fa = fa - fcorrector->ftvec[i];
+		float tvec=tf*fc;
+		fa -= tvec;
 	}
-	float result = -fa;
-	for (i=(fcorrector->ford)-1; i>=0; i--) {
-		result += fcorrector->ftvec[i];
-	}
-	return result;
+	return -2*fa; //This is a very strange optimization.  For some reason he stores all of the ftvec values, and goes through a loop, adding it to -fa, instead of just multiplying fa by -2...
 }
 float AddFormants(FormantCorrector * fcorrector, float in,long int writepoint) {
 	// The second part of the formant corrector
@@ -78,7 +73,7 @@ float AddFormants(FormantCorrector * fcorrector, float in,long int writepoint) {
 	// tf is signal input
 	// gotta run it 3 times because of a pesky delay free loop
 	//  first time: compute 0-response
-    float f0resp=FormantCorrectorIteration(fcorrector,0,writepoint);
+	float f0resp=FormantCorrectorIteration(fcorrector,0,writepoint);
 	//  second time: compute 1-response
 	float f1resp=FormantCorrectorIteration(fcorrector,1,writepoint);
 	//  now solve equations for output, based on 0-response and 1-response
@@ -95,10 +90,11 @@ float AddFormants(FormantCorrector * fcorrector, float in,long int writepoint) {
 	float fb = fa;
 	int i=0;
 	for (i=0; i<fcorrector->ford; i++) {
-		float fc = (fb-fcorrector->frc[i])*fcorrector->frlamb + fcorrector->frb[i];
-		fcorrector->frc[i] = fc;
-		fcorrector->frb[i] = fb;
-		float tf = fcorrector->fbuff[i][writepoint];
+		FormantLevel level=fcorrector->flevels[i];
+		float fc = (fb-level.rc)*fcorrector->frlamb + level.rb;
+		level.rc = fc;
+		level.rb = fb;
+		float tf = level.buff[writepoint];
 		fb = fc - tf*fa;
 		fa = fa - tf*fc;
 	}
@@ -123,4 +119,12 @@ float AddFormants(FormantCorrector * fcorrector, float in,long int writepoint) {
 void UpdateFormantWarp(FormantCorrector* fcorrector) {
 	float f = pow((float)2,(*fcorrector->p_Fwarp)/2)*(1+fcorrector->flamb)/(1-fcorrector->flamb);
 	fcorrector->frlamb = (f - 1)/(f + 1);
+}
+
+void CleanupFormantCorrector(FormantCorrector * fcorrector) {
+	int i;
+  	for (i=0; i<fcorrector->ford; i++) {
+  		free(fcorrector->flevels[i].buff);
+  	}
+  	free(fcorrector->flevels);
 }

@@ -58,19 +58,7 @@ static void cleanupTalentedHack(LV2_Handle instance)
 	free(ATInstance->pshifter.hannwindow);
 	free(ATInstance->pdetector.acwinv);
 	free(ATInstance->pshifter.frag);
-	free(ATInstance->fcorrector.fk);
-	free(ATInstance->fcorrector.fb);
- 	free(ATInstance->fcorrector.fc);
- 	free(ATInstance->fcorrector.frb);
- 	free(ATInstance->fcorrector.frc);
- 	free(ATInstance->fcorrector.fsmooth);
- 	free(ATInstance->fcorrector.fsig);
-	int i;
-  	for (i=0; i<ATInstance->fcorrector.ford; i++) {
-  		free(ATInstance->fcorrector.fbuff[i]);
-  	}
-  	free(ATInstance->fcorrector.fbuff);
-  	free(ATInstance->fcorrector.ftvec);
+	CleanupFormantCorrector(&ATInstance->fcorrector);
 #ifdef DEBUGPLOT
 	SDL_FreeSurface(screen);
     //Quit SDL
