@@ -101,7 +101,7 @@ void QuantizerInit(Quantizer* q, const LV2_Feature * const * features) {
   }
   if (q->midi_event_id == 0 || q->event_ref == NULL)
   {
-    fprintf(stderr, "autotalent LV2: MIDI support not supported in host... disabling.\n");
+    fprintf(stderr, "TalentedHack: MIDI support not supported in host... disabling.\n");
   }
 }
 

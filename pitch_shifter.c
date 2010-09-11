@@ -40,9 +40,15 @@ float ShiftPitch(PitchShifter * pshifter, CircularBuffer * buffer, long int N) {
 	if (pshifter->phasein >= 1) {
 		pshifter->phasein = pshifter->phasein - 1;
 		long fragment_beginning= buffer->cbiwr - N/2;
-		 for (long i=-N/2; i<N/2; i++) {
-			pshifter->frag[(i+N)%N] = buffer->cbf[(i + fragment_beginning + N)%N];
-      }
+
+#define FRAGCOPYLOOP(lower,upper,index) {\
+	for (long i=lower; i<upper; i++) {\
+		pshifter->frag[index] = buffer->cbf[(i + fragment_beginning + N)%N];\
+        }\
+}
+
+		FRAGCOPYLOOP(-N/2,0,i+N)
+		FRAGCOPYLOOP(0,N/2,i)
 	}
 
 	//   When output phase resets, put a snippet N/2 samples in the future
