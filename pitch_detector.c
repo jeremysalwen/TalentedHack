@@ -105,21 +105,20 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 				//recalculate best peak index;
 				while(**bestpeakindex < pdetector->ppickthresh * peak) {
 					bestpeakindex++;
-					if(bestpeakindex>endpeak) {
+					if(bestpeakindex>=endpeak) {
 						bestpeakindex=peaks;
 					}
 				}
 				peakindex++;
+				if(peakindex>=endpeak) {
+					peakindex=peaks;
+				}
 				if(peakindex==bestpeakindex) {
 					//Our circular buffer wrapped around! This is bad!  Should I throw an error or just return the best one we have so far?
 					fprintf(stderr,"Autotalent LV2 Error! Peak picking buffer wrapped around! Very bad!\n");
 					break;
 				}
-				if(peakindex>endpeak) {
-					peakindex=peaks;
-				} else {
-					*peakindex=i;
-				}
+				*peakindex=i;
 			}
 			abovezero=0;
 		} else {
