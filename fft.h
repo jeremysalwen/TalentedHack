@@ -1,5 +1,5 @@
-#ifndef AUTOTALENT_FFT_H
-#define AUTOTALENT_FFT_H
+#ifndef TALENTENEDHACK_FFT_H
+#define TALENTENEDHACK_FFT_H
 
 #include <fftw3.h>
 

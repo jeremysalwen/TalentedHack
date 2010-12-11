@@ -1,5 +1,5 @@
-#ifndef AUTOTALENT_PITCH_DETECTOR_H
-#define AUTOTALENT_PITCH_DETECTOR_H
+#ifndef TALENTENEDHACK_PITCH_DETECTOR_H
+#define TALENTENEDHACK_PITCH_DETECTOR_H
 
 #include <math.h>
 #include "circular_buffer.h"

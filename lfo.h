@@ -1,5 +1,5 @@
-#ifndef AUTOTALENT_LFO_H
-#define AUTOTALENT_LFO_H
+#ifndef TALENTENEDHACK_LFO_H
+#define TALENTENEDHACK_LFO_H
 #include <math.h>
 #include "quantizer.h"
 #define PI (float)3.14159265358979323846
