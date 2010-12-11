@@ -59,10 +59,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 		fftvars->ffttime[i] = fftvars->ffttime[i] * tf;
 		
 	}
-	
-
 	fftvars->ffttime[0] = 1;
-	
 	return fftvars->ffttime;
 }
 
@@ -70,7 +67,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	// Calculate pitch period
 
 	//MPM Algorithm, thanks to Philip McLeod, and Geoff Wyvill, adapted from their GPL Tartini program
-	
+
 	float pperiod = pdetector->pmin;
 	const float* end=autocorr+pdetector->nmax;
 	const float* start=autocorr+pdetector->nmin;
@@ -78,8 +75,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 		//Shouldn't have to do this, but this is for safety
 		pdetector->ppickthresh=1;
 	}
-	
-	
+
 	//circular buffer of peaks.
 	const int numpeaks=2000;
 	const float* peaks[numpeaks];
@@ -115,7 +111,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 				}
 				if(peakindex==bestpeakindex) {
 					//Our circular buffer wrapped around! This is bad!  Should I throw an error or just return the best one we have so far?
-					fprintf(stderr,"Autotalent LV2 Error! Peak picking buffer wrapped around! Very bad!\n");
+					fprintf(stderr,"TalentedHack Error! Peak picking buffer wrapped around! Very bad!\n");
 					break;
 				}
 				*peakindex=i;
@@ -126,13 +122,13 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 			if (*i>peak) {
 				peak = *i;
 			}
-			if(*i>**peakindex) { 
+			if(*i>**peakindex) {
 				*peakindex=i;
 			}
 		}
 		i++;
 	}
-	
+
 	const float *bestpeak=*bestpeakindex;
 	if (peak>0) {
 		int peakindex=bestpeak-autocorr;
@@ -209,5 +205,5 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	}
 	pdetector->acwinv[0] = 1;
 	// ---- END Calculate autocorrelation of window ----
-	
+
 }

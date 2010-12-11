@@ -1,5 +1,5 @@
-#ifndef AUTOTALENT_PITCH_SMOOTHER_H
-#define AUTOTALENT_PITCH_SMOOTHER_H
+#ifndef TALENTENEDHACK_PITCH_SMOOTHER_H
+#define TALENTENEDHACK_PITCH_SMOOTHER_H
 #include <math.h>
 typedef struct {
 	float * p_pitchsmooth;

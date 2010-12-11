@@ -1,5 +1,5 @@
-#ifndef AUTOTALENT_QUANTIZER_H
-#define AUTOTALENT_QUANTIZER_H
+#ifndef TALENTENEDHACK_QUANTIZER_H
+#define TALENTENEDHACK_QUANTIZER_H
 #include <math.h> 
 #include "event.h"
 #include "event-helpers.h"
