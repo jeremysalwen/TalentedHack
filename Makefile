@@ -23,7 +23,7 @@ install:
 	cp -r ../`basename \`pwd\`` ~/.lv2/
 	
 tarballs: talentedhack.so
-	cd ..; rm talentedhack_source.tar.gz; tar -czvf talentedhack_source.tar.gz talentedhack.lv2/*.c talentedhack.lv2/*.h talentedhack.lv2/dependencies talentedhack.lv2/*.ttl talentedhack.lv2/Makefile;
+	cd ..; rm talentedhack_source.tar.gz; tar -czvf talentedhack_source.tar.gz talentedhack.lv2/*.c talentedhack.lv2/*.h talentedhack.lv2/dependencies/*.d talentedhack.lv2/*.ttl talentedhack.lv2/Makefile;
 	cd ..; rm talentedhack_linux_x86.tar.gz; tar -czvf talentedhack_linux_x86.tar.gz talentedhack.lv2/*.ttl talentedhack.lv2/talentedhack.so;
 
 .PHONY : clean cleanall install tarballs
