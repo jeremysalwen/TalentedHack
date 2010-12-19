@@ -7,15 +7,15 @@
 
 void setpixel8(SDL_Surface *screen, int x, int y,Uint32 colour )
 {
-   Uint8 *pixmem8 = (Uint8*) screen->pixels  + y*1024 + x;
-   *pixmem8 = colour;
+	Uint8 *pixmem8 = (Uint8*) screen->pixels  + y*1024 + x;
+	*pixmem8 = colour;
 }
 #endif
 const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars, CircularBuffer* buffer,long int N) {
 #ifdef DEBUGPLOT
 	if(!printed) {
-	    SDL_FillRect( screen, NULL, 0 );
-		
+		SDL_FillRect( screen, NULL, 0 );
+
 	}
 
 	Uint32 colour= SDL_MapRGB( screen->format, 255,255,255);
@@ -27,7 +27,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 		float inputbuffer=buffer->cbi[(buffer->cbiwr-i+N)%N];
 		fftvars->ffttime[i] = inputbuffer*windowval;
 #ifdef DEBUGPLOT
-	if(i&1 && !printed) {
+		if(i&1 && !printed) {
 			setpixel8(screen,i/2,fftvars->ffttime[i]*-50+50,colour);
 		}
 #endif
@@ -43,7 +43,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	// Remove DC
 	fftvars->complex[0][0] = 0;
 	fftvars->complex[0][1] = 0;
-    	long int Nf=N/2;
+	long int Nf=N/2;
 	// Take magnitude squared
 	for (i=1; i<Nf; i++) {
 		fftvars->complex[i][0] = (fftvars->complex[i][0] )*(fftvars->complex[i][0]) + (fftvars->complex[i][1])*(fftvars->complex[i][1]);
@@ -57,7 +57,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	float tf = (float)1/(fftvars->ffttime[0]); //Everything is divided by N because fftw doesn't normalize, and instead introduces a factor of N
 	for (i=1; i<N; i++) {
 		fftvars->ffttime[i] = fftvars->ffttime[i] * tf;
-		
+
 	}
 	fftvars->ffttime[0] = 1;
 	return fftvars->ffttime;
@@ -87,6 +87,9 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	//Choose peak so far
 	const float** bestpeakindex=peaks;
 
+	//This tells us if the interval we are testing has a peak higher than all previous peaks.  If not, we can ignore it, because it will never be picked.
+	bool newmaxima=false;
+
 	const float* i=autocorr;
 	//go to second zero-crossing
 	while(*i>=0 && i<end) i++;
@@ -94,10 +97,12 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	while(i<start) i++;
 	*peaks=i;
 	float peak=-2; //height of highest peak found
-	int abovezero=1;  //boolean
+	bool abovezero=true;  //Was the last sample above zero?
+
 	while (i<end) {
 		if(*i<=0) {
-			if(abovezero) {
+			//If the height of this last peak was bigger than all before it.
+			if(abovezero && newmaxima) {
 				//recalculate best peak index;
 				while(**bestpeakindex < pdetector->ppickthresh * peak) {
 					bestpeakindex++;
@@ -115,18 +120,20 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 					break;
 				}
 				*peakindex=i;
+				newmaxima=false;
 			}
-			abovezero=0;
+			abovezero=false;
 		} else {
-			abovezero=1;
 			if (*i>peak) {
 				peak = *i;
+				newmaxima=true;
 			}
 			if(*i>**peakindex) {
 				*peakindex=i;
 			}
+			abovezero=true;
 		}
-		i++;
+		i++;		
 	}
 
 	const float *bestpeak=*bestpeakindex;
@@ -143,14 +150,6 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 			} else {
 				pperiod=peakindex/fs;
 			}
-			/*
-			 // Find the center of mass in the vicinity of the detected peak
-			 float tf = peak[-1]*(peakindex-1);
-			 tf = tf + peak[0]*(peakindex);
-			 tf = tf + peak[1]*(peakindex+1);
-			 tf = tf/(peak[-1] + peak[0] + peak[1]);
-			 pperiod = tf/fs;
-			 */
 		} else {
 			pperiod = (float)(peakindex)/fs;
 		}
@@ -178,7 +177,7 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	}
 	pdetector->nmin = (unsigned long)(SampleRate * pdetector->pmin);
 	pdetector->vthresh = 0.7;  //  The voiced confidence (unbiased peak) threshold level
-			// Generate a window with a single raised cosine from N/4 to 3N/4
+	// Generate a window with a single raised cosine from N/4 to 3N/4
 	pdetector->cbwindow=(float*)calloc(cbsize, sizeof(float));
 	int i;
 	for (i=0; i<(cbsize/2 ); i++) {
@@ -188,7 +187,7 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	pdetector->acwinv = calloc(cbsize, sizeof(float));
 	memcpy(fftvars->ffttime,pdetector->cbwindow,cbsize*sizeof(float));     
 	fft_forward(fftvars);
-	
+
 	for (i=0; i<corrsize; i++) {
 		fftvars->complex[i][0] = (fftvars->complex[i][0] )*(fftvars->complex[i][0]) + (fftvars->complex[i][1])*(fftvars->complex[i][1]);
 		fftvars->complex[i][1] = 0;
