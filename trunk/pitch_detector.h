@@ -6,6 +6,7 @@
 #include "fft.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifdef DEBUGPLOT
 #include <SDL/SDL.h>
