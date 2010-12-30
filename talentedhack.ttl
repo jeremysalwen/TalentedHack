@@ -8,18 +8,21 @@
 
 
 <urn:jeremy.salwen:plugins:talentedhack> a lv2:Plugin ;
-  a lv2:Plugin, lv2:InstrumentPlugin;
+  a lv2:Plugin, lv2:PitchPlugin;
   lv2:binary <talentedhack.so>;
   doap:name "TalentedHack";
   doap:developer [
       foaf:name "Tom Baran";
       foaf:homepage <http://web.mit.edu/tbaran/www/> ;
   ] ;
-  doap:developer [
+  doap:maintainer [
       foaf:name "Jeremy Salwen";
       foaf:mbox <mailto:jeremybubs@gmail.com> ;
   ] ;
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+
+  lv2:optionalFeature <http://lv2plug.in/ns/ext/event> ;
+  lv2:optionalFeature <http://lv2plug.in/ns/ext/uri-map> ;
 
   lv2:port [
     a ev:EventPort, lv2:OutputPort;
