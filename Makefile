@@ -17,6 +17,7 @@ clean:
 
 %.o:%.c
 	$(CC) -MMD -MP -c $(CFLAGS) $*.c -o $*.o; \
+	mkdir -p dependencies
 	mv $*.d dependencies/
 install:
 	echo "Copying this directory to ~/.lv2 ..."
