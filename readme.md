@@ -53,5 +53,15 @@ Fixed crash which occurred when using high sampling rates.
 
 #### Version 1.85 ####
 Made the peak picking code more efficient.
+
+#### Version 1.9 ####
+Fixed a couple of bugs that were causing audio artifacts.
+Exposed additional control ports:
+
+  * Min Pitch
+  * Max Pitch
+  * Overtone Avoidance (MPM's k parameter)
+  * Voiced Threshold
+
 ### Contact ###
 If you have any questions, please contact me, at jeremysalwen@gmail.com
