@@ -320,17 +320,13 @@ static void runTalentedHack(LV2_Handle instance, uint32_t sample_count)
 				float outpperiod=semitones_to_pperiod(&psTalentedHack->quantizer, outpitch);
 				// Compute variables for pitch shifter that depend on pitch
 				ComputePitchShifterVariables(&psTalentedHack->pshifter, pperiod,outpperiod,fs);
-				psTalentedHack->pshifter.active=1;
 			} else { 
 				UnVoiceMidi(&psTalentedHack->quantizer,lSampleIndex);
 				ResetPitchSmoother(&psTalentedHack->psmoother);
-				psTalentedHack->pshifter.active=0;
 			}
 		}
+		in=ShiftPitch(&psTalentedHack->pshifter,&psTalentedHack->buffer, N);
 		
-		if(psTalentedHack->pshifter.active) {
-			in=ShiftPitch(&psTalentedHack->pshifter,&psTalentedHack->buffer, N);
-		}
 		unsigned int twoahead = (psTalentedHack->buffer.cbiwr + 2)%N;
 		if (*psTalentedHack->fcorrector.p_Fcorr>=1) {
 			in=AddFormants(&psTalentedHack->fcorrector,in,twoahead);

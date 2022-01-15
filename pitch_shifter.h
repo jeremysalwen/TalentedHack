@@ -24,8 +24,6 @@
 	 
   float* cbo; // circular output buffer
   unsigned long cbord;  //read index for circular buffer;
-	 
-  int active;
 } PitchShifter;
 
 
