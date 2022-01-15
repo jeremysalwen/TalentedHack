@@ -54,11 +54,13 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	fft_inverse(fftvars);
 
 	// Normalize
-	float tf = (float)1/(fftvars->ffttime[0]); //Everything is divided by N because fftw doesn't normalize, and instead introduces a factor of N
+	const float noise_floor = 0.05;  // To prevent rounding errors when quiet.
+	float tf = (float)1/fmax(fftvars->ffttime[0], noise_floor);
 	for (i=1; i<N; i++) {
-		fftvars->ffttime[i] = fftvars->ffttime[i] * tf;
-
+		// Mathematically x[i] <= x[0], but there can be rounding errors.
+		fftvars->ffttime[i] = fmin(fftvars->ffttime[i] * tf, 1.0);
 	}
+
 	fftvars->ffttime[0] = 1;
 	return fftvars->ffttime;
 }
@@ -71,10 +73,6 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	float pperiod = pdetector->pmin;
 	const float* end=autocorr+pdetector->nmax;
 	const float* start=autocorr+pdetector->nmin;
-	if(pdetector->ppickthresh>1) {
-		//Shouldn't have to do this, but this is for safety
-		pdetector->ppickthresh=1;
-	}
 
 	//circular buffer of peaks.
 	const int numpeaks=2000;
@@ -104,7 +102,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 			//If the height of this last peak was bigger than all before it.
 			if(abovezero && newmaxima) {
 				//recalculate best peak index;
-				while(**bestpeakindex < pdetector->ppickthresh * peak) {
+				while(**bestpeakindex < *pdetector->p_ppickthresh * peak) {
 					bestpeakindex++;
 					if(bestpeakindex>=endpeak) {
 						bestpeakindex=peaks;
@@ -158,7 +156,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	}
 
 	// Convert to semitones
-	if (pdetector->confidence>=pdetector->vthresh) {
+	if (pdetector->confidence>=*pdetector->p_vthresh) {
 		return pperiod;
 	} else {
 		return -1;  //Could not find pitch;
@@ -166,7 +164,6 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 }
 
 void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsigned long cbsize, double SampleRate) {
-	pdetector->ppickthresh=0.9;//I have no idea what this should be, except the MPM paper suggested between 0.8 and 1, so I am taking the average :P
 	unsigned long corrsize=cbsize/2+1;
 	pdetector->pmax = 1/(float)70;  // max and min periods (ms)
 	pdetector->pmin = 1/(float)700; // eventually may want to bring these out as sliders
@@ -176,7 +173,6 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 		pdetector->nmax =corrsize;
 	}
 	pdetector->nmin = (unsigned long)(SampleRate * pdetector->pmin);
-	pdetector->vthresh = 0.7;  //  The voiced confidence (unbiased peak) threshold level
 	// Generate a window with a single raised cosine from N/4 to 3N/4
 	pdetector->cbwindow=(float*)calloc(cbsize, sizeof(float));
 	int i;

@@ -85,6 +85,18 @@ static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *da
 		case AT_MIX:
 			plugin->p_mix=data;
 			break;
+		case AT_PULLPITCH_AMOUNT:
+			plugin->quantizer.p_amount=data;
+			break;
+		case AT_PITCH_SMOOTH:
+			plugin->psmoother.p_pitchsmooth=data;
+			break;
+		case AT_VOICED_THRESH:
+			plugin->pdetector.p_vthresh=data;
+			break;
+		case AT_MPM_K:
+			plugin->pdetector.p_ppickthresh=data;
+			break;
 		case AT_FCORR:
 			plugin->fcorrector.p_Fcorr=data;
 			break;
@@ -111,9 +123,6 @@ static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *da
 			break;
 		case AT_AREF:
 			plugin->quantizer.p_aref=data;
-			break;
-		case AT_PULLPITCH_AMOUNT:
-			plugin->quantizer.p_amount=data;
 			break;
 		case AT_DA:
 			plugin->quantizer.inotes.A=data;
@@ -192,9 +201,6 @@ static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *da
 			break;
 		case AT_LATENCY:
 			plugin->p_latency=data;
-			break;
-		case AT_PITCH_SMOOTH:
-			plugin->psmoother.p_pitchsmooth=data;
 			break;
 		default:
 			printf("Error, didn't connect port #%i",port);

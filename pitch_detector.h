@@ -23,8 +23,8 @@ typedef struct {
   float* cbwindow;  //cosine window;
   float* acwinv; // inverse of autocorrelation of window
   
-  float vthresh; // Voiced speech threshold
-  float ppickthresh;	
+  float* p_vthresh; // The voiced confidence (unbiased peak) threshold level
+  float* p_ppickthresh; // MPM's "k" constant
 } PitchDetector;
 
 const float * obtain_autocovariance(PitchDetector * pdetector,fft_vars* fftvars, CircularBuffer* buffer, long int N);
