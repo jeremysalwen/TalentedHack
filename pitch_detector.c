@@ -66,13 +66,19 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 }
 
 float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigned long Nf, float fs) {
-	// Calculate pitch period
 
 	//MPM Algorithm, thanks to Philip McLeod, and Geoff Wyvill, adapted from their GPL Tartini program
 
-	float pperiod = pdetector->pmin;
-	const float* end=autocorr+pdetector->nmax;
-	const float* start=autocorr+pdetector->nmin;
+	// Calculate pitch period
+	// Division, so min and max are swapped.
+	float pperiod = 1 / *pdetector->p_pmax;
+	unsigned long nmax = (unsigned long)(fs / *pdetector->p_pmin);
+	if (nmax > pdetector->corrsize) {
+		nmax = pdetector->corrsize;
+	}
+	unsigned long nmin = (unsigned long)(fs /  *pdetector->p_pmax);
+	const float* end=autocorr + nmax;
+	const float* start=autocorr + nmin;
 
 	//circular buffer of peaks.
 	const int numpeaks=2000;
@@ -164,15 +170,8 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 }
 
 void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsigned long cbsize, double SampleRate) {
-	unsigned long corrsize=cbsize/2+1;
-	pdetector->pmax = 1/(float)70;  // max and min periods (ms)
-	pdetector->pmin = 1/(float)700; // eventually may want to bring these out as sliders
-
-	pdetector->nmax = (unsigned long)(SampleRate * pdetector->pmax);
-	if (pdetector->nmax > corrsize) {
-		pdetector->nmax =corrsize;
-	}
-	pdetector->nmin = (unsigned long)(SampleRate * pdetector->pmin);
+	pdetector->corrsize=cbsize/2+1;
+	
 	// Generate a window with a single raised cosine from N/4 to 3N/4
 	pdetector->cbwindow=(float*)calloc(cbsize, sizeof(float));
 	int i;
@@ -184,7 +183,7 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	memcpy(fftvars->ffttime,pdetector->cbwindow,cbsize*sizeof(float));     
 	fft_forward(fftvars);
 
-	for (i=0; i<corrsize; i++) {
+	for (i=0; i<pdetector->corrsize; i++) {
 		fftvars->complex[i][0] = (fftvars->complex[i][0] )*(fftvars->complex[i][0]) + (fftvars->complex[i][1])*(fftvars->complex[i][1]);
 		fftvars->complex[i][1] = 0;
 	}

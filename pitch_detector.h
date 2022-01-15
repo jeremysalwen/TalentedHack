@@ -14,15 +14,16 @@
 
 #define PI (float)3.14159265358979323846
 typedef struct {
-  float pmax; // Maximum allowable pitch period (seconds)
-  float pmin; // Minimum allowable pitch period (seconds)
-  unsigned long nmax; // Maximum period index for pitch prd est
-  unsigned long nmin; // Minimum period index for pitch prd est
   float pperiod;
   float confidence;
+
+  unsigned long corrsize; // Size of the autocorrelation buffers
+	
   float* cbwindow;  //cosine window;
   float* acwinv; // inverse of autocorrelation of window
-  
+
+  float* p_pmax; // Maximum allowable pitch (Hz)
+  float* p_pmin; // Minimum allowable pitch (Hz)
   float* p_vthresh; // The voiced confidence (unbiased peak) threshold level
   float* p_ppickthresh; // MPM's "k" constant
 } PitchDetector;

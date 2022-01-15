@@ -91,6 +91,12 @@ static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *da
 		case AT_PITCH_SMOOTH:
 			plugin->psmoother.p_pitchsmooth=data;
 			break;
+		case AT_MIN_PITCH:
+			plugin->pdetector.p_pmin=data;
+			break;
+		case AT_MAX_PITCH:
+			plugin->pdetector.p_pmax=data;
+			break;
 		case AT_VOICED_THRESH:
 			plugin->pdetector.p_vthresh=data;
 			break;
@@ -335,7 +341,6 @@ static void runTalentedHack(LV2_Handle instance, uint32_t sample_count)
 		// Write audio to output of plugin
 		// Mix (blend between original (delayed) =0 and processed =1)
 		*(pfOutput++)=(*psTalentedHack->p_mix)*in + (1-(*psTalentedHack->p_mix))*psTalentedHack->buffer.cbi[twoahead];
-		
 	}
 	FetchLatestMidiNote(&psTalentedHack->quantizer,sample_count-1);
 	// Tell the host the algorithm latency
