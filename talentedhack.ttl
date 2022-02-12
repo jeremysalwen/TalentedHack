@@ -5,7 +5,9 @@
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
-@prefix ev: <http://lv2plug.in/ns/ext/event#>.
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#>.
 
 
@@ -24,19 +26,22 @@
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:optionalFeature <http://lv2plug.in/ns/ext/event> ;
-  lv2:optionalFeature <http://lv2plug.in/ns/ext/uri-map> ;
+  lv2:optionalFeature urid:map ;
 
   lv2:port [
-    a ev:EventPort, lv2:OutputPort;
+    a atom:AtomPort, lv2:OutputPort;
     lv2:index 0;
-    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
+    atom:bufferType atom:Sequence;
+    atom:supports midi:MidiEvent;
     lv2:symbol "midi_out";
     lv2:name "MIDI Out";
     lv2:portProperty lv2:connectionOptional;
   ] , [
-    a ev:EventPort, lv2:InputPort;
+    a atom:AtomPort, lv2:InputPort;
     lv2:index 1;
-    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
+    atom:bufferType atom:Sequence;
+    atom:supports midi:MidiEvent;
+    lv2:designation lv2:control;
     lv2:symbol "midi_in";
     lv2:name "MIDI In";
     lv2:portProperty lv2:connectionOptional;

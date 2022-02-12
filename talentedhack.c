@@ -71,10 +71,10 @@ static void connectPortTalentedHack(LV2_Handle instance, uint32_t port, void *da
 	TalentedHack *plugin = (TalentedHack *)instance;
 	switch (port) {
 		case AT_MIDI_OUT:
-			plugin->quantizer.MidiOut=data;
+			plugin->quantizer.p_midi_out=data;
 			break;
 		case AT_MIDI_IN:
-			plugin->quantizer.MidiIn=data;
+			plugin->quantizer.p_midi_in=data;
 			break;
 		case AT_AUDIO_IN:
 			plugin->p_InputBuffer=data;
@@ -264,9 +264,7 @@ static void runTalentedHack(LV2_Handle instance, uint32_t sample_count)
 	UpdateFormantWarp(&psTalentedHack->fcorrector);
 	UpdateQuantizer(&psTalentedHack->quantizer);
 	UpdateLFO(&psTalentedHack->lfo,N,psTalentedHack->noverlap,fs);
-	lv2_event_begin(&psTalentedHack->quantizer.in_iterator, psTalentedHack->quantizer.MidiIn);
-	lv2_event_begin(&psTalentedHack->quantizer.out_iterator, psTalentedHack->quantizer.MidiOut);
-	
+
 	const float* pfInput=psTalentedHack->p_InputBuffer;
 	float* pfOutput=psTalentedHack->p_OutputBuffer;
 	
@@ -306,6 +304,7 @@ static void runTalentedHack(LV2_Handle instance, uint32_t sample_count)
 				//Now we begin to modify the note, to determine what pitch we want to shift to
 				MidiPitch input=FetchLatestMidiNote(&psTalentedHack->quantizer,lSampleIndex);
 				note=MixMidiIn(&psTalentedHack->quantizer,note,input);
+				
 				note.note=SnapToKey(psTalentedHack->quantizer.oNotes, note.note, note.pitchbend>0);
 				if(!*psTalentedHack->p_correct_midiout) {
 					PullToInTune(&psTalentedHack->quantizer, &note);

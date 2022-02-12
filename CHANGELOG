@@ -1,0 +1,55 @@
+### Future features ###
+  * Fixed formant corrector
+  * Better note onset detection (aubio?)
+  * Transient/Steady State filtering (aubio)
+
+#### Version 1.9 ####
+Fixed a couple of bugs that were causing audio artifacts.
+Exposed additional control ports:
+
+  * Min Pitch
+  * Max Pitch
+  * Overtone Avoidance (MPM's k parameter)
+  * Voiced Threshold
+
+#### Version 1.85 ####
+Made the peak picking code more efficient.
+
+#### Version 1.84 ####
+Fixed crash which occurred when using high sampling rates.
+
+#### Version 1.83 ####
+Cleaned up the branding so it won't be confused with Autotalent any more.
+
+#### Version 1.82 ####
+Fixed linking issue with GCC 4.4.
+Fixed Makefile to include dependencies folder in tarballs.
+
+#### Version 1.81 ####
+Made Midi ports optional thanks to Gabriel Beddingfield
+
+### Version 1.8 ###
+Added Pitch Smoothing
+
+### Version 1.7 ###
+Fixed unnecessary pitch jumping.
+
+### Version 1.6 ###
+Implemented the LFO
+
+### Version 1.5 ###
+Updated the pitch detection code to use the peak picking algorithm of Tartini (MPM)
+
+### Version 1 ###
+Initial release.  We'll see how this goes.
+
+
+
+
+
+
+
+
+
+
+

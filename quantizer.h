@@ -1,10 +1,11 @@
 #ifndef TALENTENEDHACK_QUANTIZER_H
 #define TALENTENEDHACK_QUANTIZER_H
 #include <math.h> 
-#include "event.h"
-#include "event-helpers.h"
 #include "lv2.h"
-#include "uri-map.h"
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+#include "lv2/lv2plug.in/ns/ext/midi/midi.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -48,13 +49,17 @@ typedef struct {
 	MidiPitch InPitch;
 	MidiPitch OutPitch;
 	
-	LV2_Event_Buffer *MidiIn;
-	LV2_Event_Iterator in_iterator;
-	LV2_Event_Feature* event_ref;
-	int midi_event_id;
+	struct {
+		LV2_URID midi_MidiEvent;
+		LV2_URID atom_Sequence;
+	} uris;
+	
+	LV2_Atom_Sequence* p_midi_in;
+	LV2_Atom_Sequence* p_midi_out;
 
-	LV2_Event_Buffer *MidiOut;
-	LV2_Event_Iterator out_iterator;
+	bool midi_in_last_event_valid;
+	uint8_t midi_in_last_event[3];
+	uint32_t midi_out_capacity;
 
 } Quantizer;
 

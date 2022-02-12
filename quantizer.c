@@ -17,6 +17,11 @@ void CopyNotesToBuffer(Notes* notes, int buffer[12]) {
 }
 
 void UpdateQuantizer(Quantizer * q) {
+	// We save the capacity of the buffer, then clear it to prepare for output.
+	q->midi_out_capacity = q->p_midi_out->atom.size;
+	lv2_atom_sequence_clear(q->p_midi_out);
+	// Have to set the output type too?
+	q->p_midi_out->atom.type = q->uris.atom_Sequence;
 	CopyNotesToBuffer(&q->inotes,q->iNotes);
 	CopyNotesToBuffer(&q->onotes,q->oNotes);
 	int numin=0;
@@ -84,25 +89,25 @@ MidiPitch pperiod_to_midi(Quantizer* q, float pperiod) {
 void QuantizerInit(Quantizer* q, const LV2_Feature * const * features) {
 	q->InPitch.note=0;
 	q->OutPitch.note=0;
-	q->midi_event_id = 0;
-	q->event_ref = 0;
-	LV2_URI_Map_Feature *map_feature;
-	const LV2_Feature * const *  i;
-	for (i = features; *i; i++) {
-    if (!strcmp((*i)->URI, "http://lv2plug.in/ns/ext/uri-map"))
-    {
-      map_feature = (*i)->data;
-      q->midi_event_id = map_feature->uri_to_id(map_feature->callback_data,
-                                                      "http://lv2plug.in/ns/ext/event",
-                                                      "http://lv2plug.in/ns/ext/midi#MidiEvent");
-    } else if (!strcmp((*i)->URI, "http://lv2plug.in/ns/ext/event")) {
-      q->event_ref = (*i)->data;
-    }
-  }
-  if (q->midi_event_id == 0 || q->event_ref == NULL)
-  {
-    fprintf(stderr, "TalentedHack: MIDI support not supported in host... disabling.\n");
-  }
+	q->p_midi_in = NULL;
+	q->p_midi_out = NULL;
+	q->midi_in_last_event_valid = false;
+	q->midi_out_capacity = 0;
+	
+	q->uris.midi_MidiEvent = 0;
+	q->uris.atom_Sequence = 0;
+	for (int i = 0; features[i]; ++i) {
+		if (!strcmp(features[i]->URI, LV2_URID__map)) {
+		  LV2_URID_Map* map = (LV2_URID_Map*)features[i]->data;
+		  q->uris.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
+		  q->uris.atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
+		  break;
+		}
+		
+	}
+	if (q->uris.midi_MidiEvent == 0) {
+		fprintf(stderr, "TalentedHack: MIDI support not supported in host... disabling.\n");
+	}
 }
 
 MidiPitch MixMidiIn(Quantizer* q, MidiPitch detected, MidiPitch in) {

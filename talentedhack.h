@@ -10,7 +10,6 @@
 #include "lfo.h"
 #include "pitch_smoother.h"
 #include <lv2.h>
-#include "event.h"
 
 #ifdef DEBUGPLOT
 #include "SDL/SDL.h"
