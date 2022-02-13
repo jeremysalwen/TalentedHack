@@ -85,7 +85,6 @@ MidiPitch FetchLatestMidiNote(Quantizer* q, int samplenum) {
 	if (! q->p_midi_in) return q->InPitch;
 	LV2_ATOM_SEQUENCE_FOREACH(q->p_midi_in, iter) {
 		if (iter->body.type != q->uris.midi_MidiEvent) {
-			printf("got non-midi event\n");
 			continue;
 		}
 		if(iter->time.frames > samplenum) {
