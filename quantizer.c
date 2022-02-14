@@ -17,11 +17,13 @@ void CopyNotesToBuffer(Notes* notes, int buffer[12]) {
 }
 
 void UpdateQuantizer(Quantizer * q) {
-	// We save the capacity of the buffer, then clear it to prepare for output.
-	q->midi_out_capacity = q->p_midi_out->atom.size;
-	lv2_atom_sequence_clear(q->p_midi_out);
-	// Have to set the output type too?
-	q->p_midi_out->atom.type = q->uris.atom_Sequence;
+	if(q->p_midi_out) {
+		// We save the capacity of the buffer, then clear it to prepare for output.
+		q->midi_out_capacity = q->p_midi_out->atom.size;
+		lv2_atom_sequence_clear(q->p_midi_out);
+		// Have to set the output type too?
+		q->p_midi_out->atom.type = q->uris.atom_Sequence;
+	}
 	CopyNotesToBuffer(&q->inotes,q->iNotes);
 	CopyNotesToBuffer(&q->onotes,q->oNotes);
 	int numin=0;
